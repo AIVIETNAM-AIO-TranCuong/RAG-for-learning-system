@@ -1,0 +1,64 @@
+
+# CORE — LangChain Framework
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-google-genai>=2.0.0       
+langchain-huggingface>=0.1.0        
+
+# LLM — Google Gemini API
+google-generativeai>=0.8.0
+
+# VECTOR DATABASE — Qdrant (local mode)
+qdrant-client>=1.11.0
+
+# EMBEDDINGS & RERANKING — GPU-accelerated
+# NOTE: Nếu dùng Conda, cài torch qua conda TRƯỚC khi chạy pip:
+#   conda install pytorch torchvision pytorch-cuda=12.1 -c pytorch -c nvidia -y
+# Nếu dùng pip thuần:
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+torch>=2.3.0
+transformers>=4.44.0
+sentence-transformers>=3.1.0        
+accelerate>=0.34.0                 
+
+# DOCUMENT PROCESSING (PDF, Word, PowerPoint, Markdown, Text)
+pypdf>=4.3.0                      
+pdfplumber>=0.11.0                  
+python-docx>=1.1.0                  
+python-pptx>=1.0.0                  
+# CONFIG & VALIDATION
+pydantic>=2.8.0
+pydantic-settings>=2.4.0
+python-dotenv>=1.0.0
+
+# TEMPLATING — Prompt management
+Jinja2>=3.1.4
+
+# API INTERFACE — FastAPI
+fastapi>=0.115.0
+uvicorn[standard]>=0.31.0
+python-multipart>=0.0.12            
+
+# HTTP CLIENT — Streamlit gọi API nội bộ
+httpx>=0.27.0
+
+# CLI INTERFACE — Typer
+typer[all]>=0.12.0
+rich>=13.8.0                        
+
+# UI INTERFACE — Streamlit
+streamlit>=1.38.0
+
+# EVALUATION — Ragas framework + TensorFlow similarity metrics
+ragas>=0.2.0
+datasets>=2.21.0                   
+
+# TensorFlow — dùng cho cosine similarity matrix trong evaluation
+# Dùng bản CPU để tránh conflict VRAM với PyTorch (GPU)
+tensorflow-cpu>=2.17.0
+
+# UTILITIES
+tqdm>=4.66.0                       
+loguru>=0.7.2                       
+numpy>=1.26.0
+pandas>=2.2.0                       

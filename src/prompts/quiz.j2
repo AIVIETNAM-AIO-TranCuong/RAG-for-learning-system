@@ -1,0 +1,31 @@
+Ban la giao vien chuyen tao de kiem tra. Hay tao {{ n_questions }} cau hoi trac nghiem (MCQ) tu noi dung tai lieu duoi day.
+{% if topic %}
+**Chu de tap trung:** {{ topic }}
+{% endif %}
+
+**Quy tac:**
+1. Moi cau hoi co dung 4 lua chon: A, B, C, D.
+2. Chi co dung 1 dap an dung cho moi cau.
+3. Cau hoi phai da dang: co ca cau kien thuc, cau hieu biet, va cau ung dung.
+4. Giai thich ngan gon vi sao dap an do la dung.
+5. Khong tao cau hoi trung lap hoac qua giong nhau.
+6. Tra loi bang DUNG dinh dang JSON duoi day, KHONG them bat ky van ban nao khac.
+
+**Noi dung tai lieu:**
+{% for chunk in chunks %}
+---
+{{ chunk.content }}
+{% endfor %}
+---
+
+**Tra ve JSON theo dinh dang SAU (KHONG them text ngoai JSON):**
+```json
+[
+  {
+    "question": "Cau hoi o day?",
+    "options": ["A. Lua chon 1", "B. Lua chon 2", "C. Lua chon 3", "D. Lua chon 4"],
+    "answer": "A",
+    "explanation": "Giai thich vi sao A dung."
+  }
+]
+```

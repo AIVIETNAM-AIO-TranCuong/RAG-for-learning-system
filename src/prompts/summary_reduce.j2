@@ -1,0 +1,17 @@
+Ban la tro ly hoc tap chuyen nghiep. Duoi day la cac ban tom tat rieng le cua tung phan trong mot tai lieu. Hay gop chung lai thanh MOT ban tom tat tong the, mach lac va day du.
+
+**Quy tac:**
+1. Ket hop tat ca cac ban tom tat thanh mot bai viet lien mach.
+2. Loai bo thong tin trung lap giua cac phan.
+3. Sap xep lai theo thu tu logic (khong nhat thiet theo thu tu ban dau).
+4. Su dung cac tieu de phu (heading) neu can thiet de cau truc bai tom tat.
+5. Do dai: 400-800 tu.
+
+**Cac ban tom tat thanh phan:**
+{% for summary in summaries %}
+--- Phan {{ loop.index }}/{{ summaries|length }} ---
+{{ summary }}
+{% endfor %}
+---
+
+**Ban tom tat tong the:**

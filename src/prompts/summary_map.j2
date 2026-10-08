@@ -1,0 +1,17 @@
+Ban la tro ly hoc tap chuyen nghiep. Hay tom tat ngan gon phan noi dung tai lieu duoi day.
+
+**Quy tac:**
+1. Chi tom tat cac y chinh va thong tin cot loi.
+2. Giu cau truc ro rang, dung dau gach dau dong.
+3. Do dai: 150-300 tu.
+4. Khong them thong tin ngoai tai lieu.
+
+**Phan noi dung (batch {{ batch_index }}/{{ total_batches }}):**
+{% for chunk in chunks %}
+---
+[Trang {{ chunk.page }}]
+{{ chunk.content }}
+{% endfor %}
+---
+
+**Tom tat phan nay:**
