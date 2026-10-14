@@ -57,46 +57,50 @@ class ApiClient:
         except Exception:
             return False
 
+    def _handle(self, resp: httpx.Response) -> Dict[str, Any]:
+        try:
+            resp.raise_for_status()
+            return resp.json()
+        except httpx.HTTPStatusError as e:
+            try:
+                detail = resp.json().get("detail", str(e))
+                raise RuntimeError(detail) from None
+            except Exception:
+                raise RuntimeError(str(e)) from None
+
     def list_documents(self) -> List[Dict[str, Any]]:
         resp = self.client.get("/documents")
-        resp.raise_for_status()
-        return resp.json()
+        return self._handle(resp)
 
     def upload_document(self, file_bytes: bytes, filename: str, force: bool = False) -> Dict[str, Any]:
-        files = {"file": (filename, file_bytes, "application/pdf")}
+        files = {"file": (filename, file_bytes)}
         data = {"force_reindex": str(force).lower()}
-        resp = self.client.post("/upload", files=files, data=data)
-        resp.raise_for_status()
-        return resp.json()
+        resp = self.client.post("/upload", files=files, data=data, timeout=300.0)
+        return self._handle(resp)
 
     def delete_document(self, doc_id: str) -> Dict[str, Any]:
         resp = self.client.delete(f"/documents/{doc_id}")
-        resp.raise_for_status()
-        return resp.json()
+        return self._handle(resp)
 
     def ask(self, question: str, doc_id: Optional[str] = None) -> Dict[str, Any]:
         payload = {"question": question, "document_id": doc_id}
         resp = self.client.post("/ask", json=payload)
-        resp.raise_for_status()
-        return resp.json()
+        return self._handle(resp)
 
     def summarize(self, doc_id: str) -> Dict[str, Any]:
         payload = {"document_id": doc_id}
         resp = self.client.post("/summarize", json=payload)
-        resp.raise_for_status()
-        return resp.json()
+        return self._handle(resp)
 
     def create_quiz(self, doc_id: str, topic: Optional[str] = None, n_questions: int = 8) -> Dict[str, Any]:
         payload = {"document_id": doc_id, "topic": topic, "n_questions": n_questions}
         resp = self.client.post("/quiz", json=payload)
-        resp.raise_for_status()
-        return resp.json()
+        return self._handle(resp)
 
     def create_flashcards(self, doc_id: str, topic: Optional[str] = None, n_cards: int = 15) -> Dict[str, Any]:
         payload = {"document_id": doc_id, "topic": topic, "n_cards": n_cards}
         resp = self.client.post("/flashcards", json=payload)
-        resp.raise_for_status()
-        return resp.json()
+        return self._handle(resp)
 
 
 class LocalPipelineClient:
@@ -186,15 +190,20 @@ if "summary_data" not in st.session_state:
 # Kiểm tra chế độ kết nối: API Server hoặc Standalone (cho Streamlit Cloud)
 remote_api = ApiClient(base_url=st.session_state.api_url)
 is_server_online = remote_api.check_health()
+is_local_host = "127.0.0.1" in st.session_state.api_url or "localhost" in st.session_state.api_url
 
 if is_server_online:
     api = remote_api
     is_online = True
-    connection_mode = "API Server"
+    connection_mode = "FastAPI Backend"
+elif is_local_host:
+    api = remote_api
+    is_online = False
+    connection_mode = "Server Offline"
 else:
     api = LocalPipelineClient()
     is_online = True
-    connection_mode = "Trực tiếp (Standalone / Cloud)"
+    connection_mode = "Cloud Standalone"
 
 
 # ============================================================
@@ -213,7 +222,7 @@ with st.sidebar:
     st.caption(f"Chế độ: **{connection_mode}**")
 
     # Cau hinh URL API (tuy chon neu muon tro ve backend rieng)
-    with st.expander("🌐 Kết nối API từ xa (Tùy chọn)"):
+    with st.expander("🌐 Kết nối API"):
         new_url = st.text_input("FastAPI Server URL", value=st.session_state.api_url)
         if new_url != st.session_state.api_url:
             st.session_state.api_url = new_url
@@ -236,7 +245,7 @@ with st.sidebar:
         if not is_online:
             st.error("Server API đang offline, không thể nạp tài liệu.")
         else:
-            with st.spinner("Đang đọc, chunking và embedding..."):
+            with st.spinner("Đang nạp tài liệu"):
                 try:
                     res = api.upload_document(
                         file_bytes=uploaded_file.getvalue(),
@@ -251,7 +260,7 @@ with st.sidebar:
     st.divider()
 
     # Section: Chon tai lieu lam viec
-    st.subheader("📚 Tài liệu đã tải lên")
+    st.subheader("📚 Tài liệu đã nạp")
     documents = []
     if is_online:
         try:
@@ -259,7 +268,7 @@ with st.sidebar:
         except Exception:
             documents = []
 
-    doc_options = {"all": "🌐 Tất cả tài liệu (Toàn bộ thư viện)"}
+    doc_options = {"all": "🌐 Tất cả tài liệu"}
     doc_map = {}
     for d in documents:
         doc_id = d.get("document_id", "")
@@ -377,7 +386,7 @@ with tab_qa:
 
                             st.markdown(
                                 f"<span class='citation-badge'>[{marker}]</span> "
-                                f"**{fn}** (Trang {page}) — *Score: {score:.3f}*",
+                                f"**{fn}** (Trang {page})",
                                 unsafe_allow_html=True,
                             )
                             st.info(content)
@@ -586,15 +595,12 @@ with tab_flashcards:
                 total=total_cards,
             )
 
-            # Lang nghe su kien ban phim: Mui ten trai (quay lai), Mui ten phai (tiep theo), Space/Enter/Mui ten len-xuong (lat the)
+            # Lang nghe su kien: Nhap chuot truc tiep vao the de lat + Phim tat ban phim
             components.html(
                 """
                 <script>
                 (function() {
                     const parentDoc = window.parent.document;
-                    if (window.parent.__fcKeyHandler) {
-                        parentDoc.removeEventListener('keydown', window.parent.__fcKeyHandler);
-                    }
 
                     function findButton(text) {
                         const btns = parentDoc.querySelectorAll('button');
@@ -606,6 +612,25 @@ with tab_flashcards:
                         return null;
                     }
 
+                    // 1. Lang nghe click truc tiep tren the Flashcard
+                    if (window.parent.__fcClickHandler) {
+                        parentDoc.removeEventListener('click', window.parent.__fcClickHandler);
+                    }
+                    window.parent.__fcClickHandler = function(e) {
+                        const card = e.target.closest('.flashcard-container');
+                        if (card) {
+                            const btn = findButton('Lật');
+                            if (btn) {
+                                btn.click();
+                            }
+                        }
+                    };
+                    parentDoc.addEventListener('click', window.parent.__fcClickHandler);
+
+                    // 2. Lang nghe phim tat ban phim (Mui ten trai, phai, space, enter)
+                    if (window.parent.__fcKeyHandler) {
+                        parentDoc.removeEventListener('keydown', window.parent.__fcKeyHandler);
+                    }
                     window.parent.__fcKeyHandler = function(e) {
                         const activeTag = parentDoc.activeElement ? parentDoc.activeElement.tagName.toLowerCase() : '';
                         if (activeTag === 'input' || activeTag === 'textarea') {
@@ -632,7 +657,6 @@ with tab_flashcards:
                             }
                         }
                     };
-
                     parentDoc.addEventListener('keydown', window.parent.__fcKeyHandler);
                 })();
                 </script>

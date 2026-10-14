@@ -108,7 +108,7 @@ def health_check():
 
 @app.post("/upload", response_model=UploadResponse, tags=["Documents"])
 async def upload_document(
-    file: UploadFile = File(..., description="Tệp tài liệu cần nạp vào hệ thống (PDF, Word, PPTX, TXT, MD)"),
+    file: UploadFile = File(..., description="Tệp tài liệu cần nạp vào hệ thống"),
     force_reindex: bool = Form(True, description="Tự động ghi đè và nạp lại nếu tài liệu đã tồn tại"),
 ):
     """
