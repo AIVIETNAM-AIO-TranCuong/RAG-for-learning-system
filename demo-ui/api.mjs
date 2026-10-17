@@ -7,6 +7,12 @@ export function normalizeBaseUrl(value) {
   return url.href.replace(/\/+$/, '');
 }
 
+export function defaultApiUrl(hostname, configuredUrl = '') {
+  if (configuredUrl.trim()) return normalizeBaseUrl(configuredUrl);
+  return ['localhost', '127.0.0.1', '[::1]', '::1'].includes(hostname)
+    ? 'http://127.0.0.1:8000' : '';
+}
+
 export function createApi(baseUrl, fetcher = globalThis.fetch) {
   const base = normalizeBaseUrl(baseUrl);
   async function request(path, { method = 'GET', body, timeout = 360000 } = {}) {

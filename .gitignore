@@ -42,6 +42,11 @@ data/
 *.json
 *.sqlite3
 
+# Frontend deployment configuration and local build artifacts
+!demo-ui/vercel.json
+.vercel/
+demo-ui/public/
+
 # IDEs
 .idea/
 .vscode/

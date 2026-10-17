@@ -1,4 +1,4 @@
-import { createApi, normalizeBaseUrl, createWorkspaceState, gradeQuiz, optionLetter } from './api.mjs';
+import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter } from './api.mjs';
 
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -11,7 +11,8 @@ if (pageUrl.searchParams.has('sample')) {
 }
 let savedUrl;
 try { savedUrl = localStorage.getItem('rag-demo:api-url'); } catch { /* Storage can be disabled. */ }
-const state = { url: savedUrl || 'http://127.0.0.1:8000', tab: 'chat',
+const configuredUrl = document.querySelector('meta[name="rag-api-url"]')?.content || '';
+const state = { url: savedUrl || defaultApiUrl(location.hostname, configuredUrl), tab: 'chat',
   documents: [], selected: null, loading: true, health: null, connectionError: '', documentsError: '', job: null,
   scopes: new Map(), loadId: 0, uploadItems: [] };
 let api;
@@ -24,7 +25,7 @@ function workspace() {
   return state.scopes.get(key);
 }
 const selectedDocument = () => state.documents.find(doc => doc.document_id === state.selected);
-const sourceName = () => selectedDocument()?.filename || 'Toàn bộ thư viện';
+const sourceName = () => selectedDocument()?.filename || (state.url ? 'Toàn bộ thư viện' : 'Chưa kết nối backend');
 const busy = type => state.job?.type === type && state.job.scope === scopeKey();
 const blocked = () => Boolean(state.job) || state.loading || !state.documents.length;
 function toast(message) {
@@ -65,9 +66,11 @@ function markdown(value) {
 }
 
 function renderHeader() {
-  $('#settings-button').innerHTML = `<span class="status-dot ${state.health ? 'online' : ''}"></span>${state.health ? 'API đã kết nối' : state.loading ? 'Đang kết nối' : 'API ngoại tuyến'}${icon('settings')}`;
+  $('#settings-button').innerHTML = `<span class="status-dot ${state.health ? 'online' : ''}"></span>${state.health ? 'API đã kết nối' : !state.url ? 'Kết nối backend' : state.loading ? 'Đang kết nối' : 'API ngoại tuyến'}${icon('settings')}`;
   $('#scope-label').innerHTML = `Nguồn đang chọn <span aria-hidden="true">/</span> <strong>${esc(sourceName())}</strong>`;
-  $('#mode-notice').innerHTML = state.connectionError
+  $('#mode-notice').innerHTML = !state.url
+    ? '<strong>Giao diện đã sẵn sàng.</strong> Kết nối backend HTTPS để đọc tài liệu và dùng các công cụ học tập. <button data-action="settings">Thiết lập kết nối</button>'
+    : state.connectionError
     ? `Không kết nối được backend. <button data-action="settings">Đổi địa chỉ API</button> hoặc <button data-action="reload">thử kết nối lại</button>.`
     : state.health?.llm_configured === false ? '<strong>Đã kết nối thư viện thật.</strong> Backend chưa có API key để sinh nội dung. Cấu hình khóa ở backend rồi khởi động lại API.'
     : 'Từ tài liệu của bạn: hỏi đáp có trích dẫn, tóm tắt và công cụ ôn tập trong cùng một không gian.';
@@ -86,7 +89,8 @@ function renderSources() {
   const docs = state.documents.filter(doc => doc.filename.toLocaleLowerCase('vi').includes(search));
   $('#document-count').textContent = state.documents.length || '';
   const sourceList = $('#source-list');
-  if (state.loading) sourceList.innerHTML = '<div class="busy-row"><span class="spinner"></span>Đang lấy tài liệu…</div>';
+  if (!state.url) sourceList.innerHTML = '<p class="muted">Thư viện sẽ xuất hiện sau khi bạn kết nối backend.</p><button class="button" data-action="settings">Kết nối backend</button>';
+  else if (state.loading) sourceList.innerHTML = '<div class="busy-row"><span class="spinner"></span>Đang lấy tài liệu…</div>';
   else if (state.documentsError) sourceList.innerHTML = errorBox(state.documentsError, 'reload');
   else if (!state.documents.length) sourceList.innerHTML = '<div class="muted">Chưa có tài liệu. Thêm nguồn đầu tiên để bắt đầu.</div>';
   else sourceList.innerHTML = `<p class="list-label">THƯ VIỆN CỦA BẠN</p>${docs.map(doc => `
@@ -144,6 +148,7 @@ function render({ bottom = false } = {}) {
 async function loadSources() {
   const loadId = ++state.loadId;
   state.loading = true; state.connectionError = ''; state.documentsError = ''; state.health = null;
+  if (!state.url) { state.loading = false; state.documents = []; state.selected = null; render(); return; }
   api = createApi(state.url);
   render();
   const [health, documents] = await Promise.allSettled([api.health(), api.documents()]);
@@ -205,7 +210,9 @@ async function reconnect() {
   await loadSources();
 }
 function showSettings() {
-  $('#api-url').value = state.url; $('#settings-error').textContent = ''; $('#settings-dialog').showModal();
+  $('#api-url').value = state.url;
+  $('#api-url').placeholder = location.protocol === 'https:' ? 'https://api.example.com' : 'http://127.0.0.1:8000';
+  $('#settings-error').textContent = ''; $('#settings-dialog').showModal();
 }
 function showSources() {
   if (matchMedia('(max-width: 900px)').matches) {
@@ -286,7 +293,11 @@ document.addEventListener('submit', event => {
   } else if (event.target.id === 'settings-form') {
     if (state.job) { $('#settings-error').textContent = 'Chờ tác vụ hiện tại hoàn tất trước khi đổi kết nối.'; return; }
     try {
-      state.url = normalizeBaseUrl($('#api-url').value);
+      const nextUrl = normalizeBaseUrl($('#api-url').value);
+      if (location.protocol === 'https:' && new URL(nextUrl).protocol !== 'https:') {
+        throw new Error('Bản public cần địa chỉ backend HTTPS. Backend localhost chỉ dùng với UI chạy trên máy.');
+      }
+      state.url = nextUrl;
       try { localStorage.setItem('rag-demo:api-url', state.url); } catch { /* Optional preference. */ }
       $('#settings-dialog').close(); reconnect();
     } catch (error) { $('#settings-error').textContent = error.message; }

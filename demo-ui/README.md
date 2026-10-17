@@ -27,3 +27,13 @@ Kiểm tra adapter và dữ liệu mẫu bằng Node.js 20+ (chỉ phục vụ k
 ```powershell
 node --test demo-ui/api.test.mjs
 ```
+
+## Publish trên Vercel
+
+Chọn thư mục gốc dự án Vercel là `demo-ui`, preset **Other**, build command `node build.mjs`, output directory `public`. Cấu hình đã có trong `vercel.json`. CLI có thể triển khai bằng `vercel --prod --yes` khi đứng trong `demo-ui` và đã đăng nhập Vercel.
+
+Build chỉ xuất 4 tệp giao diện chạy thật; fixture, test, backend và dữ liệu không nằm trong bundle. Thư mục build `demo-ui/public/` và metadata `.vercel/` không được commit.
+
+Bản public cần backend HTTPS riêng. Nếu chưa có, UI vẫn xuất bản được và hiển thị nút **Kết nối backend**; không tự gọi localhost của người truy cập. Khi có backend, nhập URL trong UI hoặc đặt biến build `PUBLIC_API_URL=https://...` trên Vercel rồi redeploy để áp dụng mặc định cho mọi người. Backend phải cho phép origin Vercel qua CORS. API key LLM vẫn cấu hình ở backend, không đặt vào `PUBLIC_API_URL` hay mã frontend.
+
+Chạy UI trên localhost vẫn tự nối `http://127.0.0.1:8000` như trước.

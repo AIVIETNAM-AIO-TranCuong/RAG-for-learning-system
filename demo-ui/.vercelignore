@@ -1,0 +1,6 @@
+public/
+api.test.mjs
+sample.mjs
+README.md
+*.log
+.env*

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createApi, normalizeBaseUrl, createWorkspaceState, gradeQuiz, optionLetter } from './api.mjs';
+import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter } from './api.mjs';
 import { createSampleApi } from './sample.mjs';
 
 test('API URLs allow HTTP paths and reject credentials and unsafe protocols', () => {
@@ -8,6 +8,13 @@ test('API URLs allow HTTP paths and reject credentials and unsafe protocols', ()
   for (const url of ['javascript:alert(1)', 'file:///etc/passwd', 'https://user:secret@example.com', 'https://example.com/?key=secret']) {
     assert.throws(() => normalizeBaseUrl(url));
   }
+});
+
+test('public deployments never default to a visitor localhost backend', () => {
+  assert.equal(defaultApiUrl('localhost'), 'http://127.0.0.1:8000');
+  assert.equal(defaultApiUrl('127.0.0.1'), 'http://127.0.0.1:8000');
+  assert.equal(defaultApiUrl('rag-learning-ui.vercel.app'), '');
+  assert.equal(defaultApiUrl('rag-learning-ui.vercel.app', 'https://api.example.com/'), 'https://api.example.com');
 });
 
 test('all generation requests use the existing single-document contracts', async () => {
