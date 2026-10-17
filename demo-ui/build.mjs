@@ -4,10 +4,11 @@ import { join } from 'node:path';
 import { normalizeBaseUrl } from './api.mjs';
 
 const root = fileURLToPath(new URL('.', import.meta.url));
-const output = join(root, 'public');
+const cloud = process.argv.includes('--cloud');
+const output = join(root, cloud ? '../public' : 'public');
 const value = (process.env.PUBLIC_API_URL || '').trim();
-const apiUrl = value ? normalizeBaseUrl(value) : '';
-if (apiUrl && new URL(apiUrl).protocol !== 'https:') {
+const apiUrl = value ? normalizeBaseUrl(value) : cloud ? '/api' : '';
+if (apiUrl && apiUrl !== '/api' && new URL(apiUrl).protocol !== 'https:') {
   throw new Error('PUBLIC_API_URL must be an HTTPS backend URL for the public website.');
 }
 const attribute = apiUrl.replace(/[&"<>]/g, char => ({ '&': '&amp;', '"': '&quot;', '<': '&lt;', '>': '&gt;' })[char]);

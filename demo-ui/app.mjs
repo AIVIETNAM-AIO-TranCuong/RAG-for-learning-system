@@ -1,4 +1,4 @@
-import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter } from './api.mjs';
+import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter, validateUpload } from './api.mjs';
 
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -12,7 +12,7 @@ if (pageUrl.searchParams.has('sample')) {
 let savedUrl;
 try { savedUrl = localStorage.getItem('rag-demo:api-url'); } catch { /* Storage can be disabled. */ }
 const configuredUrl = document.querySelector('meta[name="rag-api-url"]')?.content || '';
-const state = { url: savedUrl || defaultApiUrl(location.hostname, configuredUrl), tab: 'chat',
+const state = { url: savedUrl || defaultApiUrl(location.hostname, configuredUrl, location.origin), tab: 'chat',
   documents: [], selected: null, loading: true, health: null, connectionError: '', documentsError: '', job: null,
   scopes: new Map(), loadId: 0, uploadItems: [] };
 let api;
@@ -71,7 +71,7 @@ function renderHeader() {
   $('#mode-notice').innerHTML = !state.url
     ? '<strong>Giao diện đã sẵn sàng.</strong> Kết nối backend HTTPS để đọc tài liệu và dùng các công cụ học tập. <button data-action="settings">Thiết lập kết nối</button>'
     : state.connectionError
-    ? `Không kết nối được backend. <button data-action="settings">Đổi địa chỉ API</button> hoặc <button data-action="reload">thử kết nối lại</button>.`
+    ? `${esc(state.connectionError)} <button data-action="settings">Đổi địa chỉ API</button> hoặc <button data-action="reload">thử kết nối lại</button>.`
     : state.health?.llm_configured === false ? '<strong>Đã kết nối thư viện thật.</strong> Backend chưa có API key để sinh nội dung. Cấu hình khóa ở backend rồi khởi động lại API.'
     : 'Từ tài liệu của bạn: hỏi đáp có trích dẫn, tóm tắt và công cụ ôn tập trong cùng một không gian.';
   document.querySelectorAll('[data-tab]').forEach(button => {
@@ -80,7 +80,7 @@ function renderHeader() {
   });
   panel.setAttribute('aria-labelledby', `tab-${state.tab}`);
   $('#upload-button').disabled = Boolean(state.job) || !state.url;
-  $('#upload-button').title = state.url ? 'Thêm tài liệu vào backend' : 'Kết nối backend để thêm tài liệu';
+  $('#upload-button').title = state.url ? 'Thêm tài liệu · tối đa 4 MB/file' : 'Kết nối backend để thêm tài liệu';
   $('#refresh-button').disabled = state.loading || Boolean(state.job) || !state.url;
 }
 
@@ -196,6 +196,7 @@ async function upload(files) {
   for (let index = 0; index < files.length; index++) {
     const file = files[index]; const item = state.uploadItems[index];
     if (!/\.(pdf|docx|pptx|txt|md)$/i.test(file.name)) { item.status = 'Định dạng chưa được hỗ trợ.'; item.error = true; renderSources(); continue; }
+    try { validateUpload(file); } catch (error) { item.status = error.message; item.error = true; renderSources(); continue; }
     item.status = 'Đang tải lên và lập chỉ mục…'; renderSources();
     try { const result = await api.upload(file); item.status = `Đã sẵn sàng · ${result.total_chunks} đoạn`; }
     catch (error) { item.status = error.message; item.error = true; }

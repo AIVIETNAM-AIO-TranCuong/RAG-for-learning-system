@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter } from './api.mjs';
+import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter, validateUpload } from './api.mjs';
 import { createSampleApi } from './sample.mjs';
 
 test('API URLs allow HTTP paths and reject credentials and unsafe protocols', () => {
@@ -15,6 +15,17 @@ test('public deployments never default to a visitor localhost backend', () => {
   assert.equal(defaultApiUrl('127.0.0.1'), 'http://127.0.0.1:8000');
   assert.equal(defaultApiUrl('rag-learning-ui.vercel.app'), '');
   assert.equal(defaultApiUrl('rag-learning-ui.vercel.app', 'https://api.example.com/'), 'https://api.example.com');
+  assert.equal(defaultApiUrl('rag-learning-ui.vercel.app', '/api', 'https://rag-learning-ui.vercel.app'), 'https://rag-learning-ui.vercel.app/api');
+});
+
+test('file size validation accepts the exact limit and rejects oversized and empty files before fetch', async () => {
+  assert.doesNotThrow(() => validateUpload({ size: 4_000_000 }));
+  assert.throws(() => validateUpload({ size: 4_000_001 }), /4 MB/);
+  assert.throws(() => validateUpload({ size: 0 }), /File trống/);
+  let calls = 0;
+  const api = createApi('https://example.com/api', () => { calls++; });
+  assert.throws(() => api.upload(new File([new Uint8Array(4_000_001)], 'large.pdf')), /4 MB/);
+  assert.equal(calls, 0);
 });
 
 test('all generation requests use the existing single-document contracts', async () => {

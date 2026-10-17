@@ -7,7 +7,15 @@ export function normalizeBaseUrl(value) {
   return url.href.replace(/\/+$/, '');
 }
 
-export function defaultApiUrl(hostname, configuredUrl = '') {
+export const MAX_UPLOAD_BYTES = 4_000_000;
+
+export function validateUpload(file) {
+  if (file.size > MAX_UPLOAD_BYTES) throw new Error('File vượt giới hạn 4.000.000 byte (4 MB).');
+  if (!file.size) throw new Error('File trống, vui lòng chọn tài liệu có nội dung.');
+}
+
+export function defaultApiUrl(hostname, configuredUrl = '', origin = '') {
+  if (configuredUrl === '/api') return normalizeBaseUrl(`${origin}/api`);
   if (configuredUrl.trim()) return normalizeBaseUrl(configuredUrl);
   return ['localhost', '127.0.0.1', '[::1]', '::1'].includes(hostname)
     ? 'http://127.0.0.1:8000' : '';
@@ -46,6 +54,7 @@ export function createApi(baseUrl, fetcher = globalThis.fetch) {
     quiz: (documentId, topic, count) => request('/quiz', { method: 'POST', body: { document_id: documentId, topic: topic || null, n_questions: count } }),
     flashcards: (documentId, topic, count) => request('/flashcards', { method: 'POST', body: { document_id: documentId, topic: topic || null, n_cards: count } }),
     upload: file => {
+      validateUpload(file);
       const form = new FormData();
       form.append('file', file);
       form.append('force_reindex', 'false');
