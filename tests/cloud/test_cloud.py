@@ -170,6 +170,14 @@ async def test_embedding_failure_writes_no_chunks(service):
     assert await service.store.documents() == []
 
 
+async def test_grouped_citations_open_individual_source_panels(service):
+    await service.index(chunks())
+    service.ai.generate = AsyncMock(side_effect=['[0, 1, 2]', 'Nội dung [S1, S2].'])
+    result = await service.ask('Test?', 'doc-a')
+    assert result.answer == 'Nội dung [S1][S2].'
+    assert [citation.marker for citation in result.citations] == ['S1', 'S2']
+
+
 async def test_map_reduce_covers_every_chunk_and_uses_at_most_two_calls(service):
     await service.index(chunks(31))
     result = await service.summarize("doc-a")

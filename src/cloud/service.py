@@ -1,4 +1,5 @@
 import asyncio
+import re
 from pathlib import Path
 
 from fastapi import HTTPException
@@ -71,6 +72,9 @@ class CloudService:
             pass
         context = [dict(chunk, marker=f"S{index}") for index, chunk in enumerate(final, 1)]
         answer = await self.ai.generate(PROMPTS.get_template("qa.j2").render(chunks=context, question=question))
+        # The existing UI links one marker per bracket; normalize Gemini's grouped citations.
+        answer = re.sub(r"\[(S\d+(?:\s*,\s*S\d+)+)\]",
+                        lambda match: "".join(f"[{marker.strip()}]" for marker in match[1].split(",")), answer)
         results = [retrieved(chunk) for chunk in final]
         citations = [Citation(marker=f"S{index}", chunk=chunk) for index, chunk in enumerate(results, 1) if f"[S{index}]" in answer]
         return RagAnswer(answer=answer, citations=citations, chunks=results)
