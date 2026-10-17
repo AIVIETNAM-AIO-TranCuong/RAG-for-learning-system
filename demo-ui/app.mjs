@@ -79,9 +79,9 @@ function renderHeader() {
     button.setAttribute('aria-selected', String(selected)); button.tabIndex = selected ? 0 : -1;
   });
   panel.setAttribute('aria-labelledby', `tab-${state.tab}`);
-  $('#upload-button').disabled = Boolean(state.job);
-  $('#upload-button').title = 'Thêm tài liệu vào backend';
-  $('#refresh-button').disabled = state.loading || Boolean(state.job);
+  $('#upload-button').disabled = Boolean(state.job) || !state.url;
+  $('#upload-button').title = state.url ? 'Thêm tài liệu vào backend' : 'Kết nối backend để thêm tài liệu';
+  $('#refresh-button').disabled = state.loading || Boolean(state.job) || !state.url;
 }
 
 function renderSources() {
@@ -191,7 +191,7 @@ async function generate(type) {
 }
 
 async function upload(files) {
-  if (state.job || !files.length) return;
+  if (state.job || !state.url || !files.length) return;
   state.job = { type: 'upload' }; state.uploadItems = [...files].map(file => ({ name: file.name, status: 'Đang chờ' })); render();
   for (let index = 0; index < files.length; index++) {
     const file = files[index]; const item = state.uploadItems[index];

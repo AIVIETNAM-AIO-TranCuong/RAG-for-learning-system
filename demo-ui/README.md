@@ -30,6 +30,8 @@ node --test demo-ui/api.test.mjs
 
 ## Publish trên Vercel
 
+Bản public: <https://rag-learning-system-ui.vercel.app/>. Hiện publish riêng UI; backend HTTPS sẽ được kết nối sau.
+
 Chọn thư mục gốc dự án Vercel là `demo-ui`, preset **Other**, build command `node build.mjs`, output directory `public`. Cấu hình đã có trong `vercel.json`. CLI có thể triển khai bằng `vercel --prod --yes` khi đứng trong `demo-ui` và đã đăng nhập Vercel.
 
 Build chỉ xuất 4 tệp giao diện chạy thật; fixture, test, backend và dữ liệu không nằm trong bundle. Thư mục build `demo-ui/public/` và metadata `.vercel/` không được commit.
