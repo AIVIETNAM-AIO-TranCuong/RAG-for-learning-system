@@ -31,7 +31,7 @@ class Settings(BaseSettings):
     # LLM Backend (gemini | hf_local | vllm)
     llm_backend: str = Field(default="gemini")
     gemini_api_key: str = Field(default="")
-    gemini_model: str = Field(default="gemini-flash-latest")
+    gemini_model: str = Field(default="gemini-2.5-flash")
     hf_model_id: str = Field(default="")           # cho hf_local backend
     vllm_base_url: str = Field(default="")          # cho vllm backend
 

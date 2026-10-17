@@ -121,10 +121,10 @@ html, body, [class*="css"] {
     color: white;
     min-height: 250px;
     border-radius: 20px;
-    padding: 2.25rem 2rem 1.5rem 2rem;
+    padding: 3rem 2rem;
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
+    justify-content: center;
     align-items: center;
     text-align: center;
     box-shadow: 0 12px 28px -6px rgba(49, 46, 129, 0.4);
@@ -232,18 +232,9 @@ def render_flashcard_card(front: str, back: str, is_flipped: bool, index: int, t
     flip_hint = "🔄 Nhấp vào thẻ để lật lại mặt trước" if is_flipped else "🔄 Nhấp vào thẻ để xem đáp án"
 
     html = f"""
-    <div class="flashcard-container" onclick="(function(){{
-        const buttons = document.querySelectorAll('button');
-        for (let b of buttons) {{
-            if (b.innerText && b.innerText.includes('Lật')) {{
-                b.click();
-                break;
-            }}
-        }}
-    }})()" title="{flip_hint}">
+    <div id="flashcard-active-card" class="flashcard-container">
         <div class="flashcard-tag">{tag}</div>
         <div class="{text_class}">{content}</div>
-        <div class="flashcard-hint">{flip_hint} • Dùng phím ⬅️ ➡️ trên bàn phím để chuyển thẻ</div>
     </div>
     """
     st.markdown(html, unsafe_allow_html=True)
