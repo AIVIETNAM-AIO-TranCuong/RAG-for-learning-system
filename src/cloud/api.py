@@ -7,6 +7,7 @@ from pathlib import Path
 from fastapi import APIRouter, FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from src.core.schemas import FlashcardSet, QuizSet, RagAnswer, Summary
@@ -45,7 +46,7 @@ async def execute(operation):
         raise provider_error(error) from None
 
 
-def create_app(settings: CloudSettings | None = None, service=None) -> FastAPI:
+def create_app(settings: CloudSettings | None = None, service=None, *, ui_directory: Path | None = None) -> FastAPI:
     settings = settings or CloudSettings()
 
     @asynccontextmanager
@@ -141,7 +142,11 @@ def create_app(settings: CloudSettings | None = None, service=None) -> FastAPI:
             await file.close()
 
     app.include_router(router)
+    if ui_directory is not None:
+        # Declare the mount explicitly so Vercel can promote the built files to its CDN.
+        # API routes precede the mount; html=True also serves index.html at '/'.
+        app.mount("/", StaticFiles(directory=str(ui_directory), html=True, check_dir=False), name="ui")
     return app
 
 
-app = create_app()
+app = create_app(ui_directory=Path(__file__).resolve().parents[2] / "public")

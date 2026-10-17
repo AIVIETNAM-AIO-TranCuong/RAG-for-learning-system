@@ -11,5 +11,4 @@ __pycache__
 **/__pycache__
 .pytest_cache
 demo-ui/public
-public
 *.log

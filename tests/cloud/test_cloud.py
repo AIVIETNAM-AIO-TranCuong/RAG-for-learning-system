@@ -103,6 +103,17 @@ def test_missing_configuration_is_503(monkeypatch):
         assert client.get("/api/documents").status_code == 503
 
 
+def test_built_ui_is_served_at_root_without_exposing_source(tmp_path):
+    (tmp_path / "index.html").write_text('<h1>Learning studio</h1>', encoding="utf-8")
+    (tmp_path / "app.mjs").write_text('export const ready = true;', encoding="utf-8")
+    with TestClient(create_app(settings(), ui_directory=tmp_path)) as client:
+        assert client.get("/").status_code == 200
+        assert "Learning studio" in client.get("/").text
+        assert client.get("/app.mjs").status_code == 200
+        assert client.get("/.env.cloud").status_code == 404
+        assert client.get("/src/cloud/api.py").status_code == 404
+
+
 async def test_source_filter_citations_and_contracts(service):
     await service.index(chunks())
     await service.index(chunks(2, "doc-b"))

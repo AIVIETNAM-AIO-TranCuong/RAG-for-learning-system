@@ -24,6 +24,9 @@ package = false
 [tool.vercel]
 entrypoint = "src.cloud.api:app"
 
+[tool.vercel.fastapi.static]
+cdn = true
+
 [tool.pytest.ini_options]
 testpaths = ["tests/cloud"]
 asyncio_mode = "auto"
