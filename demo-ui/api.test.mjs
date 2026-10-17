@@ -59,6 +59,16 @@ test('upload uses multipart and preserves existing indexes', async () => {
   await api.upload(new File(['hello'], 'notes.md'));
 });
 
+test('chat sends the edited system prompt independently from the question', async () => {
+  const customPrompt = 'Bạn là gia sư.\nTrả lời ngắn gọn, kèm ví dụ.';
+  const api = createApi('https://example.com/api', async (url, init) => {
+    assert.equal(new URL(url).pathname, '/api/ask');
+    assert.deepEqual(JSON.parse(init.body), { question: 'RAG là gì?', document_id: 'doc-1', system_prompt: customPrompt });
+    return Response.json({answer:'OK'});
+  });
+  await api.ask('RAG là gì?', 'doc-1', customPrompt);
+});
+
 test('generation errors preserve backend detail and never auto retry', async () => {
   let calls = 0;
   const api = createApi('http://localhost:8000', async () => { calls++; return Response.json({ detail: 'Thiếu API key' }, { status: 500 }); });

@@ -178,6 +178,7 @@ def rerank(
 def answer(
     query: str,
     document_id: Optional[str] = None,
+    system_prompt: Optional[str] = None,
 ) -> RagAnswer:
     """
     End-to-end RAG pipeline: retrieve -> rerank -> render prompt -> LLM -> RagAnswer.
@@ -221,7 +222,8 @@ def answer(
 
     # 5. Goi LLM
     llm = get_llm()
-    answer_text = llm.generate(prompt)
+    instruction = (system_prompt or "").strip()
+    answer_text = llm.generate(prompt, system_instruction=instruction) if instruction else llm.generate(prompt)
 
     # 6. Xay dung citations tu cac markers trong answer
     citations = []

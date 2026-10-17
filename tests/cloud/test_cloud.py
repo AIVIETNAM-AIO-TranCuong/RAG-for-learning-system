@@ -44,7 +44,7 @@ class FakeAI:
     async def embed_documents(self, values):
         return [await self.embed(value["content"], title=value["filename"]) for value in values]
 
-    async def generate(self, prompt, json_output=False):
+    async def generate(self, prompt, json_output=False, system_instruction=None):
         self.prompts.append(prompt)
         if prompt.startswith("Xếp hạng"):
             if isinstance(self.ranking, Exception):
@@ -182,6 +182,42 @@ async def test_grouped_citations_open_individual_source_panels(service):
     result = await service.ask('Test?', 'doc-a')
     assert result.answer == 'Nội dung [S1][S2].'
     assert [citation.marker for citation in result.citations] == ['S1', 'S2']
+
+
+async def test_system_prompt_reaches_answer_only_and_does_not_leak_to_next_request(service):
+    await service.index(chunks())
+    generator = AsyncMock(side_effect=['[0,1,2]', 'Trả lời [S1].', '[0,1,2]', 'Mặc định [S1].'])
+    service.ai.generate = generator
+    with TestClient(create_app(settings(), service)) as client:
+        first = client.post('/api/ask', json=dict(question='RAG?', document_id='doc-a', system_prompt='  Trả lời bằng ba gạch đầu dòng.  '))
+        assert first.status_code == 200
+        second = client.post('/api/ask', json=dict(question='RAG?', document_id='doc-a'))
+        assert second.status_code == 200
+        assert client.post('/api/ask', json=dict(question='RAG?', system_prompt='x' * 8001)).status_code == 422
+    calls = generator.await_args_list
+    assert len(calls) == 4
+    assert 'system_instruction' not in calls[0].kwargs
+    assert calls[1].kwargs['system_instruction'] == 'Trả lời bằng ba gạch đầu dòng.'
+    assert 'system_instruction' not in calls[2].kwargs
+    assert calls[3].kwargs['system_instruction'] is None
+
+
+async def test_empty_system_prompt_uses_default_behavior(service):
+    await service.index(chunks())
+    service.ai.generate = AsyncMock(side_effect=['[0,1,2]', 'Trả lời [S1].'])
+    await service.ask('RAG?', 'doc-a', '   ')
+    assert service.ai.generate.await_args_list[-1].kwargs['system_instruction'] is None
+
+
+async def test_sdk_sets_system_instruction_per_call():
+    ai = object.__new__(GeminiAI)
+    ai.settings = settings()
+    generate = AsyncMock(return_value=SimpleNamespace(text='OK'))
+    ai.client = SimpleNamespace(aio=SimpleNamespace(models=SimpleNamespace(generate_content=generate)))
+    await ai.generate('Question one', system_instruction='You are a tutor.')
+    await ai.generate('Question two')
+    assert generate.await_args_list[0].kwargs['config'].system_instruction == 'You are a tutor.'
+    assert generate.await_args_list[1].kwargs['config'].system_instruction is None
 
 
 async def test_map_reduce_covers_every_chunk_and_uses_at_most_two_calls(service):

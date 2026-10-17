@@ -20,6 +20,14 @@ Tin nhắn và kết quả chỉ tồn tại trong phiên trang, tách theo tài
 
 Enter gửi câu hỏi, Shift+Enter xuống dòng. Ở bộ thẻ, ←/→ chuyển và Space lật khi không nhập liệu; nút lật cũng dùng được bằng bàn phím. Bấm trích dẫn để đọc đoạn nguồn trong panel bên phải.
 
+Ô **System prompt** trong tab Hội thoại cho phép sửa hướng dẫn trả lời cho các câu hỏi
+tiếp theo, tối đa 8.000 ký tự. Nội dung được lưu riêng trong localStorage của trình
+duyệt, giữ khi đổi nguồn hoặc reload; không thay cấu hình của người khác. Nút
+**Khôi phục mặc định** đặt lại hướng dẫn ban đầu. Để trống sẽ dùng hướng dẫn mặc định
+của backend. Prompt chỉ áp dụng khi sinh câu trả lời, không sửa retrieval, reranking
+hay ba công cụ học tập còn lại. API `/ask` và `/api/ask` nhận thêm `system_prompt`
+tùy chọn; client cũ không gửi trường này vẫn hoạt động.
+
 Các tệp: `index.html` (khung), `styles.css` (token và giao diện), `app.mjs` (tương tác), `api.mjs` (API client), `sample.mjs` (fixture chỉ dành cho kiểm thử, không được UI import). Font Inter có fallback hệ thống khi không có mạng. Không có script CDN.
 
 Kiểm tra adapter và dữ liệu mẫu bằng Node.js 20+ (chỉ phục vụ kiểm thử, không cần để chạy UI):

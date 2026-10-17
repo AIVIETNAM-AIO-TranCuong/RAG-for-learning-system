@@ -28,12 +28,13 @@ class GeminiAI:
     async def close(self):
         await self.client.aio.aclose()
 
-    async def generate(self, prompt: str, *, json_output=False) -> str:
+    async def generate(self, prompt: str, *, json_output=False, system_instruction: str | None = None) -> str:
         from google.genai import types
 
         response = await self.client.aio.models.generate_content(
             model=self.settings.model, contents=prompt,
             config=types.GenerateContentConfig(
+                system_instruction=system_instruction,
                 temperature=0.2, max_output_tokens=8192,
                 response_mime_type="application/json" if json_output else "text/plain"))
         if not response.text or not response.text.strip():

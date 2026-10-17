@@ -52,7 +52,7 @@ class CloudService:
             raise HTTPException(404, "Không tìm thấy tài liệu trong thư viện.")
         return chunks
 
-    async def ask(self, question: str, document_id: str | None):
+    async def ask(self, question: str, document_id: str | None, system_prompt: str | None = None):
         if document_id:
             await self.require_document(document_id)
         vector = await self.ai.embed(question)
@@ -71,7 +71,9 @@ class CloudService:
             # Retrieval remains usable when the optional reranking request fails.
             pass
         context = [dict(chunk, marker=f"S{index}") for index, chunk in enumerate(final, 1)]
-        answer = await self.ai.generate(PROMPTS.get_template("qa.j2").render(chunks=context, question=question))
+        answer = await self.ai.generate(
+            PROMPTS.get_template("qa.j2").render(chunks=context, question=question),
+            system_instruction=(system_prompt or "").strip() or None)
         # The existing UI links one marker per bracket; normalize Gemini's grouped citations.
         answer = re.sub(r"\[(S\d+(?:\s*,\s*S\d+)+)\]",
                         lambda match: "".join(f"[{marker.strip()}]" for marker in match[1].split(",")), answer)

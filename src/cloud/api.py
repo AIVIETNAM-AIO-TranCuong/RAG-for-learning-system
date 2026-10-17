@@ -22,6 +22,7 @@ from .store import CloudStore
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=12000)
     document_id: str | None = None
+    system_prompt: str | None = Field(default=None, max_length=8000)
 
 
 class DocumentRequest(BaseModel):
@@ -104,7 +105,7 @@ def create_app(settings: CloudSettings | None = None, service=None, *, ui_direct
     async def ask(request: AskRequest):
         if not request.question.strip():
             raise HTTPException(422, "Vui lòng nhập câu hỏi.")
-        return await execute(lambda: runtime().ask(request.question.strip(), request.document_id))
+        return await execute(lambda: runtime().ask(request.question.strip(), request.document_id, request.system_prompt))
 
     @router.post("/summarize", response_model=Summary)
     async def summarize(request: DocumentRequest):

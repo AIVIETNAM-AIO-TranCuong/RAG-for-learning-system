@@ -8,6 +8,8 @@ export function normalizeBaseUrl(value) {
 }
 
 export const MAX_UPLOAD_BYTES = 4_000_000;
+export const MAX_SYSTEM_PROMPT_LENGTH = 8000;
+export const DEFAULT_SYSTEM_PROMPT = 'Bạn là trợ lý học tập. Trả lời rõ ràng bằng ngôn ngữ của câu hỏi, chỉ dựa trên các đoạn tài liệu được cung cấp. Trích dẫn nguồn bằng [S1], [S2]… Nếu tài liệu không đủ thông tin, hãy nói rõ. Giải thích dễ hiểu và dùng ví dụ từ tài liệu khi phù hợp.';
 
 export function validateUpload(file) {
   if (file.size > MAX_UPLOAD_BYTES) throw new Error('File vượt giới hạn 4.000.000 byte (4 MB).');
@@ -49,7 +51,9 @@ export function createApi(baseUrl, fetcher = globalThis.fetch) {
   return {
     health: () => request('/health', { timeout: 10000 }),
     documents: () => request('/documents', { timeout: 15000 }),
-    ask: (question, documentId) => request('/ask', { method: 'POST', body: { question, document_id: documentId } }),
+    ask: (question, documentId, systemPrompt) => request('/ask', { method: 'POST', body: {
+      question, document_id: documentId, ...(systemPrompt === undefined ? {} : { system_prompt: systemPrompt }),
+    } }),
     summarize: documentId => request('/summarize', { method: 'POST', body: { document_id: documentId } }),
     quiz: (documentId, topic, count) => request('/quiz', { method: 'POST', body: { document_id: documentId, topic: topic || null, n_questions: count } }),
     flashcards: (documentId, topic, count) => request('/flashcards', { method: 'POST', body: { document_id: documentId, topic: topic || null, n_cards: count } }),

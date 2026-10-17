@@ -1,4 +1,4 @@
-import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter, validateUpload } from './api.mjs';
+import { createApi, normalizeBaseUrl, defaultApiUrl, createWorkspaceState, gradeQuiz, optionLetter, validateUpload, DEFAULT_SYSTEM_PROMPT, MAX_SYSTEM_PROMPT_LENGTH } from './api.mjs';
 
 const $ = selector => document.querySelector(selector);
 const esc = value => String(value ?? '').replace(/[&<>"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[char]);
@@ -11,10 +11,13 @@ if (pageUrl.searchParams.has('sample')) {
 }
 let savedUrl;
 try { savedUrl = localStorage.getItem('rag-demo:api-url'); } catch { /* Storage can be disabled. */ }
+let savedSystemPrompt = null;
+try { savedSystemPrompt = localStorage.getItem('rag-demo:system-prompt'); } catch { /* Keep editing available without storage. */ }
 const configuredUrl = document.querySelector('meta[name="rag-api-url"]')?.content || '';
 const state = { url: savedUrl || defaultApiUrl(location.hostname, configuredUrl, location.origin), tab: 'chat',
   documents: [], selected: null, loading: true, health: null, connectionError: '', documentsError: '', job: null,
-  scopes: new Map(), loadId: 0, uploadItems: [] };
+  scopes: new Map(), loadId: 0, uploadItems: [],
+  systemPrompt: (savedSystemPrompt ?? DEFAULT_SYSTEM_PROMPT).slice(0, MAX_SYSTEM_PROMPT_LENGTH) };
 let api;
 let toastTimer;
 const panel = $('#workspace-panel');
@@ -106,7 +109,13 @@ function renderChat() {
   const messages = w.messages.map((message, index) => `<article class="message" data-message="${index}"><div class="question">${esc(message.question)}</div><div class="answer">${markdown(message.answer)}</div><div class="answer-actions"><button class="icon-button" data-action="copy-answer" data-index="${index}" title="Sao chép câu trả lời" aria-label="Sao chép câu trả lời">${icon('copy')}</button>${message.citations?.length ? `<button class="source-chip" data-citation="${esc(message.citations[0].marker)}" data-message-index="${index}">${icon('file')}<span>${message.citations.length} trích đoạn nguồn</span></button>` : ''}<span>${esc(message.source)}</span></div></article>`).join('');
   const suggestions = ['Giải thích những ý chính trong tài liệu', 'Các khái niệm quan trọng liên hệ thế nào?', 'Gợi ý những câu hỏi để ôn tập'];
   panel.innerHTML = `<div class="chat-stream"><div class="chat-inner">${messages || `<div class="welcome"><div class="welcome-mark">${icon('spark')}</div><h2>Bắt đầu từ một câu hỏi.</h2><p>Khám phá ý chính, kết nối kiến thức và tìm câu trả lời có trích dẫn từ nguồn bạn chọn.</p><div class="suggestions">${suggestions.map(text => `<button class="button suggestion" data-suggestion="${esc(text)}">${esc(text)}${icon('arrow')}</button>`).join('')}</div></div>`}${busy('chat') ? `<div class="question">${esc(state.job.question)}</div><div class="busy-row" role="status"><span class="spinner"></span>Đang đọc nguồn và soạn câu trả lời…</div>` : ''}${w.error?.type === 'chat' ? errorBox(w.error.message) : ''}</div></div>
-    <div class="composer-wrap"><form class="composer" id="chat-form"><textarea id="question" aria-label="Câu hỏi" placeholder="Hỏi điều gì đó từ tài liệu của bạn…" rows="2">${esc(w.draft)}</textarea><div class="composer-bottom"><div class="composer-context">${icon('file')}<span>${esc(sourceName())}</span></div><button id="send-button" class="button primary send-button" type="submit" aria-label="Gửi câu hỏi" title="Gửi câu hỏi" ${blocked() || !w.draft.trim() ? 'disabled' : ''}>${icon('send')}</button></div></form><p class="composer-note">Mỗi câu hỏi được xử lý độc lập. Enter để gửi · Shift + Enter xuống dòng</p></div>`;
+    <div class="composer-wrap"><section class="system-prompt-editor" aria-label="Cấu hình hội thoại"><div class="system-prompt-heading"><label for="system-prompt">System prompt</label><button class="button" type="button" data-action="reset-system-prompt" ${busy('chat') ? 'disabled' : ''}>Khôi phục mặc định</button></div><textarea id="system-prompt" rows="3" maxlength="${MAX_SYSTEM_PROMPT_LENGTH}" aria-describedby="system-prompt-hint" ${busy('chat') ? 'disabled' : ''}>${esc(state.systemPrompt)}</textarea><div class="system-prompt-footer"><p id="system-prompt-hint">Áp dụng cho các câu hỏi tiếp theo · Lưu riêng trên trình duyệt này. Để trống để dùng hướng dẫn mặc định.</p><span id="system-prompt-count">${state.systemPrompt.length}/${MAX_SYSTEM_PROMPT_LENGTH}</span></div></section><form class="composer" id="chat-form"><textarea id="question" aria-label="Câu hỏi" placeholder="Hỏi điều gì đó từ tài liệu của bạn…" rows="2">${esc(w.draft)}</textarea><div class="composer-bottom"><div class="composer-context">${icon('file')}<span>${esc(sourceName())}</span></div><button id="send-button" class="button primary send-button" type="submit" aria-label="Gửi câu hỏi" title="Gửi câu hỏi" ${blocked() || !w.draft.trim() ? 'disabled' : ''}>${icon('send')}</button></div></form><p class="composer-note">Mỗi câu hỏi được xử lý độc lập. Enter để gửi · Shift + Enter xuống dòng</p></div>`;
+}
+
+function saveSystemPrompt(value) {
+  state.systemPrompt = value.slice(0, MAX_SYSTEM_PROMPT_LENGTH);
+  try { localStorage.setItem('rag-demo:system-prompt', state.systemPrompt); } catch { /* Session editing still works. */ }
+  if ($('#system-prompt-count')) $('#system-prompt-count').textContent = `${state.systemPrompt.length}/${MAX_SYSTEM_PROMPT_LENGTH}`;
 }
 
 function noSource() {
@@ -167,6 +176,7 @@ async function generate(type) {
   if (blocked()) return;
   const w = workspace(); const key = scopeKey(); const selected = state.selected; const name = sourceName();
   const question = w.draft.trim();
+  const systemPrompt = state.systemPrompt;
   if (type === 'chat' && !question) return;
   if (type !== 'chat' && !selected) return toast('Chọn một tài liệu trước khi tạo nội dung.');
   const countField = type === 'quiz' ? 'quizCount' : 'cardCount';
@@ -176,7 +186,7 @@ async function generate(type) {
   }
   w.error = null; state.job = { type, scope: key, question }; render({ bottom: true });
   try {
-    const result = type === 'chat' ? await api.ask(question, selected) : type === 'summary' ? await api.summarize(selected)
+    const result = type === 'chat' ? await api.ask(question, selected, systemPrompt) : type === 'summary' ? await api.summarize(selected)
       : type === 'quiz' ? await api.quiz(selected, w.quizTopic.trim(), w.quizCount)
       : await api.flashcards(selected, w.flashcardsTopic.trim(), w.cardCount);
     if (type === 'chat') {
@@ -253,7 +263,11 @@ document.addEventListener('click', event => {
   }
   const action = target.dataset.action;
   const w = workspace();
-  if (action === 'summary') generate('summary');
+  if (action === 'reset-system-prompt') {
+    saveSystemPrompt(DEFAULT_SYSTEM_PROMPT);
+    if ($('#system-prompt')) { $('#system-prompt').value = state.systemPrompt; $('#system-prompt').focus(); }
+  }
+  else if (action === 'summary') generate('summary');
   else if (action === 'retry') generate(w.error?.type || state.tab);
   else if (action === 'reload') loadSources();
   else if (action === 'settings') showSettings();
@@ -273,6 +287,7 @@ document.addEventListener('click', event => {
 document.addEventListener('input', event => {
   const { target } = event; const w = workspace();
   if (target.id === 'question') { w.draft = target.value; $('#send-button').disabled = blocked() || !target.value.trim(); }
+  else if (target.id === 'system-prompt') saveSystemPrompt(target.value);
   else if (target.dataset.field) w[target.dataset.field] = target.type === 'number' ? Number(target.value) : target.value;
 });
 document.addEventListener('change', event => {
