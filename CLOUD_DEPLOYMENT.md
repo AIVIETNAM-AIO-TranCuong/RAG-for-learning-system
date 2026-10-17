@@ -26,6 +26,7 @@ requires a new collection and a fresh migration, even when dimensions match.
 uv run python -m pytest
 uv run python -m scripts.migrate_cloud --export-only
 uv run python -m scripts.migrate_cloud
+node demo-ui/build.mjs --cloud
 uv run uvicorn src.cloud.api:app --port 8001
 ```
 
@@ -41,7 +42,9 @@ Use the repository root, FastAPI preset, production branch `quan/ui`, and the
 tracked root `vercel.json`. The lockfile includes only cloud runtime dependencies.
 Original `requirements.txt` remains for local use and is not the cloud install source.
 The build command emits exactly four UI runtime files into root `public/` for CDN
-delivery. The browser resolves `/api` against its current origin, including previews.
+delivery. FastAPI declares a static mount for the built UI after its API routes;
+CDN promotion is explicitly enabled despite the CORS middleware. The browser resolves
+`/api` against its current origin, including previews.
 
 Add the three secrets to **both Preview and Production** Vercel environments. They
 must never be `PUBLIC_*` variables. Use the existing `rag-learning-system-ui` project.

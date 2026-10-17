@@ -28,9 +28,16 @@ Kiểm tra adapter và dữ liệu mẫu bằng Node.js 20+ (chỉ phục vụ k
 node --test demo-ui/api.test.mjs
 ```
 
-## Publish trên Vercel
+## Bản full stack trên Vercel
 
-Bản public: <https://rag-learning-system-ui.vercel.app/>. Hiện publish riêng UI; backend HTTPS sẽ được kết nối sau.
+Bản public tại <https://rag-learning-system-ui.vercel.app/> dùng UI này cùng backend
+FastAPI cloud dưới `/api`, Gemini API và Qdrant Cloud. Project build từ **gốc repository**,
+preset **FastAPI**, production branch **`quan/ui`**. Xem [hướng dẫn cloud](../CLOUD_DEPLOYMENT.md).
+UI giữ nguyên bố cục và bốn công cụ. Upload tối đa 4.000.000 byte/file; API key chỉ nằm ở backend.
+
+## Publish riêng UI trên Vercel (tùy chọn)
+
+Có thể tiếp tục publish riêng thư mục này khi muốn kết nối một backend HTTPS khác.
 
 Chọn thư mục gốc dự án Vercel là `demo-ui`, preset **Other**, build command `node build.mjs`, output directory `public`. Cấu hình đã có trong `vercel.json`. CLI có thể triển khai bằng `vercel --prod --yes` khi đứng trong `demo-ui` và đã đăng nhập Vercel.
 
