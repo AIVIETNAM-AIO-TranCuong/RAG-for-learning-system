@@ -114,6 +114,12 @@ def test_built_ui_is_served_at_root_without_exposing_source(tmp_path):
         assert client.get("/src/cloud/api.py").status_code == 404
 
 
+def test_cdn_only_runtime_returns_404_when_local_assets_are_absent(tmp_path):
+    with TestClient(create_app(settings(), ui_directory=tmp_path / 'cdn-only-assets')) as client:
+        assert client.get('/.env.cloud').status_code == 404
+        assert client.get('/data/cloud-migration.json').status_code == 404
+
+
 async def test_source_filter_citations_and_contracts(service):
     await service.index(chunks())
     await service.index(chunks(2, "doc-b"))

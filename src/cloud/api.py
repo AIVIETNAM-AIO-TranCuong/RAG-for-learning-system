@@ -38,6 +38,14 @@ class FlashcardsRequest(DocumentRequest):
     n_cards: int = Field(default=15, ge=1, le=30)
 
 
+class CdnStaticFiles(StaticFiles):
+    async def check_config(self):
+        # CDN promotion can remove the local asset directory from the runtime bundle.
+        # Unmatched URLs must still return 404 instead of a missing-directory error.
+        if self.directory is not None and Path(self.directory).is_dir():
+            await super().check_config()
+
+
 async def execute(operation):
     try:
         async with asyncio.timeout(OPERATION_SECONDS):
@@ -145,7 +153,7 @@ def create_app(settings: CloudSettings | None = None, service=None, *, ui_direct
     if ui_directory is not None:
         # Declare the mount explicitly so Vercel can promote the built files to its CDN.
         # API routes precede the mount; html=True also serves index.html at '/'.
-        app.mount("/", StaticFiles(directory=str(ui_directory), html=True, check_dir=False), name="ui")
+        app.mount("/", CdnStaticFiles(directory=str(ui_directory), html=True, check_dir=False), name="ui")
     return app
 
 
