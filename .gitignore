@@ -28,6 +28,7 @@ env/
 
 # Environment variables
 .env
+.env.cloud
 
 # Database/Storage
 qdrant_storage/
@@ -42,8 +43,22 @@ data/
 *.json
 *.sqlite3
 
+# Frontend deployment configuration and local build artifacts
+!demo-ui/vercel.json
+!vercel.json
+.vercel/
+demo-ui/public/
+public/
+.venv-cloud/
+.venv-cloud*/
+.pytest_cache/
+
 # IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
+
+.vercel
+.env*
+!.env.cloud.example

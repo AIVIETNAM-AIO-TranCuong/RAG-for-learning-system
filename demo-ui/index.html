@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f4f4f6">
+  <meta name="rag-api-url" content="">
+  <title>RAG · Không gian học tập</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232563eb'/%3E%3Cpath d='M8 8h6l2 3 2-3h6v16h-6l-2-2-2 2H8z' fill='none' stroke='white' stroke-width='2'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <svg class="sprite" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M12 7v14m0-14C9 4 5 4 2 5v15c3-1 7-1 10 1 3-2 7-2 10-1V5c-3-1-7-1-10 2Z"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Zm0 0v6h6M8 13h8m-8 4h6"/></symbol>
+    <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4 4"/></symbol>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 11.5a8.4 8.4 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.4 8.4 0 0 1-3.8-.9L3 21l1.9-5.7a8.4 8.4 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.4 8.4 0 0 1 3.8-.9h.5a8.5 8.5 0 0 1 8 8Z"/></symbol>
+    <symbol id="i-align" viewBox="0 0 24 24"><path d="M4 5h16M4 10h16M4 15h16M4 20h10"/></symbol>
+    <symbol id="i-quiz" viewBox="0 0 24 24"><path d="M9 5H5v14h14v-4M9 3h6v4H9zM10 13l3 3 8-8"/></symbol>
+    <symbol id="i-cards" viewBox="0 0 24 24"><rect x="7" y="7" width="14" height="14" rx="3"/><path d="M17 7V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h2"/></symbol>
+    <symbol id="i-send" viewBox="0 0 24 24"><path d="M12 19V5m-6 6 6-6 6 6"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14m-6-6 6 6-6 6"/></symbol>
+    <symbol id="i-x" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 7v5h-5M4 17v-5h5M6.1 7a7 7 0 0 1 11.6-2L20 8M4 16l2.3 3A7 7 0 0 0 17.9 17"/></symbol>
+    <symbol id="i-settings" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16"/><circle cx="9" cy="7" r="3"/><circle cx="15" cy="17" r="3"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></symbol>
+    <symbol id="i-shuffle" viewBox="0 0 24 24"><path d="m18 3 3 3-3 3M3 6h3c5 0 7 12 12 12h3m-3-3 3 3-3 3M3 18h3c2 0 3-2 5-5m3-3c1-2 3-4 5-4h2"/></symbol>
+    <symbol id="i-spark" viewBox="0 0 24 24"><path d="m12 3 2.5 6.5L21 12l-6.5 2.5L12 21l-2.5-6.5L3 12l6.5-2.5ZM20 2v4m-2-2h4"/></symbol>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand"><span class="brand-mark"><svg><use href="#i-book"/></svg></span><span>RAG<span class="brand-separator">/</span><span class="brand-subtitle">Learning studio</span></span><span class="demo-label">DEMO</span></div>
+    <div class="top-actions"><button id="settings-button" class="connection button" type="button" title="Thiết lập kết nối API"></button></div>
+  </header>
+
+  <div class="app-shell" id="app-shell">
+    <aside class="sources" id="sources" aria-label="Nguồn tài liệu">
+      <div class="source-heading"><h2>Nguồn tài liệu <span id="document-count"></span></h2><button id="refresh-button" class="icon-button" type="button" title="Tải lại tài liệu" aria-label="Tải lại tài liệu"><svg><use href="#i-refresh"/></svg></button></div>
+      <button id="upload-button" type="button" class="button upload-button"><svg><use href="#i-plus"/></svg>Thêm tài liệu</button>
+      <input id="file-input" type="file" accept=".pdf,.docx,.pptx,.txt,.md" multiple hidden>
+      <p class="upload-hint">PDF, Word, PowerPoint, TXT, Markdown</p>
+      <div id="upload-status" class="upload-status" aria-live="polite"></div>
+      <label class="search-box"><svg><use href="#i-search"/></svg><input id="source-search" type="search" placeholder="Tìm tài liệu…" aria-label="Tìm tài liệu"></label>
+      <div class="source-list" id="source-list" aria-live="polite"></div>
+      <div class="source-footer"><svg><use href="#i-book"/></svg><div><strong>Kiến thức của bạn, kết nối hơn.</strong><p>Chọn nguồn rồi bắt đầu khám phá.</p></div></div>
+    </aside>
+
+    <main class="workspace">
+      <div class="workspace-heading"><div><p class="eyebrow">GÓC HỌC TẬP CỦA BẠN</p><h1>Hiểu sâu hơn, từ tài liệu.</h1><p id="scope-label" class="scope-label"></p></div><button class="button mobile-sources" id="sources-button" type="button"><svg><use href="#i-menu"/></svg>Nguồn</button></div>
+      <div id="mode-notice" class="mode-notice" role="status"></div>
+      <nav class="tabs" role="tablist" aria-label="Công cụ học tập">
+        <button id="tab-chat" role="tab" aria-controls="workspace-panel" aria-selected="true" data-tab="chat"><svg><use href="#i-chat"/></svg>Hội thoại</button>
+        <button id="tab-summary" role="tab" aria-controls="workspace-panel" aria-selected="false" tabindex="-1" data-tab="summary"><svg><use href="#i-align"/></svg>Tóm tắt</button>
+        <button id="tab-quiz" role="tab" aria-controls="workspace-panel" aria-selected="false" tabindex="-1" data-tab="quiz"><svg><use href="#i-quiz"/></svg>Trắc nghiệm</button>
+        <button id="tab-flashcards" role="tab" aria-controls="workspace-panel" aria-selected="false" tabindex="-1" data-tab="flashcards"><svg><use href="#i-cards"/></svg>Thẻ nhớ</button>
+      </nav>
+      <section id="workspace-panel" class="workspace-panel" role="tabpanel" aria-labelledby="tab-chat"></section>
+      <footer class="workspace-footer"><span>Bản thử giao diện · Kết quả chỉ giữ trong phiên mở trang</span><span>Đọc. Hiểu. Ghi nhớ.</span></footer>
+    </main>
+  </div>
+
+  <dialog id="settings-dialog" class="settings-dialog" aria-labelledby="settings-title">
+    <form id="settings-form"><div class="dialog-heading"><h2 id="settings-title">Kết nối backend</h2><button type="button" class="icon-button" data-close="settings-dialog" aria-label="Đóng cài đặt"><svg><use href="#i-x"/></svg></button></div><p class="muted">Dùng FastAPI hiện có của dự án.</p><label for="api-url">Địa chỉ API</label><input id="api-url" name="api-url" type="url" placeholder="http://127.0.0.1:8000" required><p id="settings-error" class="field-error" role="alert"></p><div class="dialog-actions"><button type="button" class="button" data-close="settings-dialog">Hủy</button><button class="button primary" type="submit">Kết nối</button></div></form>
+  </dialog>
+  <dialog id="citation-dialog" class="citation-dialog" aria-labelledby="citation-title"><div id="citation-content"></div></dialog>
+  <dialog id="sources-dialog" class="sources-dialog" aria-label="Nguồn tài liệu"><div class="mobile-drawer-heading"><strong>Nguồn tài liệu</strong><button class="icon-button" data-close="sources-dialog" aria-label="Đóng nguồn"><svg><use href="#i-x"/></svg></button></div></dialog>
+  <div id="toast" role="status" class="toast" hidden></div>
+  <script type="module" src="./app.mjs"></script>
+</body>
+</html>

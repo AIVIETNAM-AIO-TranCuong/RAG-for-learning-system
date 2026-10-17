@@ -1,0 +1,14 @@
+.git
+.venv
+.venv-cloud
+.venv-cloud*
+.env
+.env.*
+qdrant_storage
+data
+docs
+__pycache__
+**/__pycache__
+.pytest_cache
+demo-ui/public
+*.log

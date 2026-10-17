@@ -51,6 +51,7 @@ app.add_middleware(
 class AskRequest(BaseModel):
     question: str = Field(..., description="Câu hỏi cần trả lời")
     document_id: Optional[str] = Field(None, description="ID tài liệu (None = tìm trên toàn bộ tài liệu)")
+    system_prompt: Optional[str] = Field(None, max_length=8000, description="Hướng dẫn trả lời tùy chỉnh")
 
 
 class SummarizeRequest(BaseModel):
@@ -203,7 +204,7 @@ def ask_question(req: AskRequest):
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Câu hỏi không được để trống.",
             )
-        result = answer(query=req.question.strip(), document_id=req.document_id)
+        result = answer(query=req.question.strip(), document_id=req.document_id, system_prompt=req.system_prompt)
         return result
     except HTTPException:
         raise

@@ -4,6 +4,13 @@ Hệ thống RAG (Retrieval-Augmented Generation) hỗ trợ học tập và ngh
 
 ---
 
+## Bản demo cloud trên Vercel
+
+UI công khai: [RAG Learning Studio](https://rag-learning-system-ui.vercel.app/).
+Bản cloud dùng FastAPI, Gemini API và Qdrant Cloud; giữ nguyên bốn công cụ học tập.
+Xem [hướng dẫn cấu hình, migration và deploy](CLOUD_DEPLOYMENT.md).
+Phần mô tả GPU, Qdrant cục bộ và Streamlit bên dưới dành cho bản chạy local.
+
 ## 🌟 Các tính năng nổi bật
 
 - **📂 Đa định dạng tài liệu:** Hỗ trợ nạp và phân tích **PDF (`.pdf`)**, **Microsoft Word (`.docx`)**, **PowerPoint (`.pptx`)**, **Markdown (`.md`)** và **Plain Text (`.txt`)**.

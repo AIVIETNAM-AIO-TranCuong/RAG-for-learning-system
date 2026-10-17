@@ -8,7 +8,7 @@ class LLMBackend(ABC):
     """Abstract interface cho tat ca LLM backends."""
 
     @abstractmethod
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, system_instruction: Optional[str] = None) -> str:
         """Goi LLM va tra ve text response."""
         ...
 
@@ -29,12 +29,17 @@ class GeminiBackend(LLMBackend):
         self.model = genai.GenerativeModel(settings.gemini_model)
         print(f"Gemini backend initialized: {settings.gemini_model}")
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, system_instruction: Optional[str] = None) -> str:
         import time
+        model = self.model
+        if system_instruction:
+            import google.generativeai as genai
+            # Per-request model configuration avoids changing another user's instructions.
+            model = genai.GenerativeModel(settings.gemini_model, system_instruction=system_instruction)
         max_retries = 4
         for attempt in range(max_retries):
             try:
-                response = self.model.generate_content(prompt)
+                response = model.generate_content(prompt)
                 return response.text
             except Exception as e:
                 err_str = str(e)
@@ -68,7 +73,9 @@ class HFLocalBackend(LLMBackend):
         )
         print(f"HF local backend initialized: {settings.hf_model_id}")
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, system_instruction: Optional[str] = None) -> str:
+        if system_instruction:
+            prompt = f"System instructions:\n{system_instruction}\n\n{prompt}"
         outputs = self.pipe(prompt, max_new_tokens=1024, do_sample=False, return_full_text=False)
         return outputs[0]["generated_text"].strip()
 
@@ -89,7 +96,9 @@ class vLLMBackend(LLMBackend):
         self.http_client = httpx.Client(timeout=120.0)
         print(f"vLLM backend initialized: {self.base_url}")
 
-    def generate(self, prompt: str) -> str:
+    def generate(self, prompt: str, *, system_instruction: Optional[str] = None) -> str:
+        if system_instruction:
+            prompt = f"System instructions:\n{system_instruction}\n\n{prompt}"
         response = self.http_client.post(
             f"{self.base_url}/v1/completions",
             json={"prompt": prompt, "max_tokens": 1024, "temperature": 0.1},

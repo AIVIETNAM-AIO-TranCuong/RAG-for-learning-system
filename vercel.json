@@ -1,0 +1,11 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "fastapi",
+  "buildCommand": "node demo-ui/build.mjs --cloud",
+  "functions": {
+    "src/cloud/api.py": {
+      "maxDuration": 300,
+      "excludeFiles": "{.venv/**,.venv-cloud*/**,qdrant_storage/**,data/**,tests/**,test_*.py,.env*,demo-ui/**,src/interfaces/**,src/db/**,src/pipelines/**,src/utils/**,src/llm.py}"
+    }
+  }
+}
