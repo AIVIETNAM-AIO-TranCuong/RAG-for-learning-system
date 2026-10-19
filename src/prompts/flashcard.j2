@@ -1,28 +1,30 @@
-Ban la giao vien chuyen tao the ghi nho (flashcard) de giup hoc sinh on tap hieu qua. Hay tao {{ n_cards }} flashcards tu noi dung tai lieu duoi day.
+Bạn là giáo viên chuyên tạo thẻ ghi nhớ (flashcard) để giúp học sinh ôn tập hiệu quả. Hãy tạo đúng {{ n_cards }} flashcards từ nội dung tài liệu dưới đây.
 {% if topic %}
-**Chu de tap trung:** {{ topic }}
+**Chủ đề tập trung:** {{ topic }}
 {% endif %}
 
-**Quy tac:**
-1. Mat truoc (front): Cau hoi ngan gon hoac khai niem can nho.
-2. Mat sau (back): Dap an hoac giai thich suc tich (1-3 cau).
-3. Cac the phai da dang: bao gom dinh nghia, su kien, so sanh, ung dung.
-4. Khong tao the trung lap.
-5. Tra loi bang DUNG dinh dang JSON duoi day, KHONG them bat ky van ban nao khac.
+**Quy tắc:**
+1. Viết nội dung cả mặt trước (front) và mặt sau (back) bằng tiếng Việt chuẩn, đầy đủ dấu, kể cả khi tài liệu hoặc chủ đề viết bằng tiếng Anh hay không dấu. Không viết tiếng Việt không dấu.
+2. Giữ nguyên tên riêng, thuật ngữ kỹ thuật và chữ viết tắt như SFT, LoRA, QLoRA khi cần; phần giải thích xung quanh vẫn phải là tiếng Việt có dấu.
+3. Mặt trước (front): Câu hỏi ngắn gọn hoặc khái niệm cần nhớ.
+4. Mặt sau (back): Đáp án hoặc giải thích súc tích (1–3 câu).
+5. Các thẻ phải đa dạng: bao gồm định nghĩa, sự kiện, so sánh, ứng dụng. Chỉ dùng thông tin có trong tài liệu.
+6. Không tạo thẻ trùng lặp.
+7. Trả lời bằng ĐÚNG định dạng JSON dưới đây, KHÔNG thêm bất kỳ văn bản nào khác. JSON hỗ trợ Unicode; giữ đầy đủ dấu tiếng Việt trong các giá trị chuỗi.
 
-**Noi dung tai lieu:**
+**Nội dung tài liệu:**
 {% for chunk in chunks %}
 ---
 {{ chunk.content }}
 {% endfor %}
 ---
 
-**Tra ve JSON theo dinh dang SAU (KHONG them text ngoai JSON):**
+**Trả về JSON theo định dạng SAU (KHÔNG thêm văn bản ngoài JSON, nội dung phải có đầy đủ dấu tiếng Việt):**
 ```json
 [
   {
-    "front": "Khai niem / Cau hoi o day?",
-    "back": "Dap an / Giai thich o day."
+    "front": "Khái niệm / Câu hỏi ở đây?",
+    "back": "Đáp án / Giải thích ở đây."
   }
 ]
 ```
