@@ -443,7 +443,7 @@ with tab_quiz:
         with col_q1:
             quiz_topic = st.text_input("Chủ đề tập trung (tùy chọn)", placeholder="Để trống nếu muốn tạo từ toàn bộ")
         with col_q2:
-            quiz_num = st.slider("Số lượng câu hỏi", min_value=3, max_value=15, value=5)
+            quiz_num = st.slider("Số lượng câu hỏi", min_value=1, max_value=15, value=5)
         with col_q3:
             st.write("")
             st.write("")
@@ -554,7 +554,7 @@ with tab_flashcards:
         with col_f1:
             fc_topic = st.text_input("Chủ đề thẻ (tùy chọn)", placeholder="Ví dụ: Định nghĩa, Mô hình kinh doanh...", key="fc_topic_input")
         with col_f2:
-            fc_num = st.slider("Số lượng thẻ", min_value=5, max_value=20, value=8, key="fc_slider")
+            fc_num = st.slider("Số lượng thẻ", min_value=1, max_value=20, value=8, key="fc_slider")
         with col_f3:
             st.write("")
             st.write("")

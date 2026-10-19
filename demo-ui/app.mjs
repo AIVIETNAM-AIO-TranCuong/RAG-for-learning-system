@@ -131,7 +131,7 @@ function renderSummary() {
 
 function studyForm(type) {
   const w = workspace(); const quiz = type === 'quiz'; const field = quiz ? 'quizCount' : 'cardCount';
-  return `<form class="form-row" id="${type}-form"><div class="form-field"><label for="${type}-topic">Chủ đề <span class="muted">(tùy chọn)</span></label><input id="${type}-topic" data-field="${type}Topic" value="${esc(w[`${type}Topic`])}" placeholder="${quiz ? 'Ví dụ: RLHF và DPO' : 'Ví dụ: Các khái niệm cốt lõi'}"></div><div class="form-field count"><label for="${type}-count">${quiz ? 'Số câu hỏi' : 'Số thẻ'}</label><div class="stepper"><button type="button" data-step="-1" data-field="${field}" aria-label="Giảm số lượng">−</button><input id="${type}-count" data-field="${field}" type="number" min="${quiz ? 3 : 5}" max="${quiz ? 10 : 15}" value="${w[field]}" required aria-label="${quiz ? 'Số câu hỏi' : 'Số thẻ'}"><button type="button" data-step="1" data-field="${field}" aria-label="Tăng số lượng">+</button></div></div><button type="submit" class="button primary" ${blocked() ? 'disabled' : ''}>${icon('spark')}${quiz ? 'Tạo trắc nghiệm' : 'Tạo thẻ nhớ'}</button></form>`;
+  return `<form class="form-row" id="${type}-form"><div class="form-field"><label for="${type}-topic">Chủ đề <span class="muted">(tùy chọn)</span></label><input id="${type}-topic" data-field="${type}Topic" value="${esc(w[`${type}Topic`])}" placeholder="${quiz ? 'Ví dụ: RLHF và DPO' : 'Ví dụ: Các khái niệm cốt lõi'}"></div><div class="form-field count"><label for="${type}-count">${quiz ? 'Số câu hỏi' : 'Số thẻ'}</label><div class="stepper"><button type="button" data-step="-1" data-field="${field}" aria-label="Giảm số lượng">−</button><input id="${type}-count" data-field="${field}" type="number" min="1" max="${quiz ? 10 : 15}" value="${w[field]}" required aria-label="${quiz ? 'Số câu hỏi' : 'Số thẻ'}"><button type="button" data-step="1" data-field="${field}" aria-label="Tăng số lượng">+</button></div></div><button type="submit" class="button primary" ${blocked() ? 'disabled' : ''}>${icon('spark')}${quiz ? 'Tạo trắc nghiệm' : 'Tạo thẻ nhớ'}</button></form>`;
 }
 function renderQuiz() {
   if (!state.selected) return noSource();
@@ -181,7 +181,7 @@ async function generate(type) {
   if (type !== 'chat' && !selected) return toast('Chọn một tài liệu trước khi tạo nội dung.');
   const countField = type === 'quiz' ? 'quizCount' : 'cardCount';
   if (['quiz', 'flashcards'].includes(type)) {
-    const count = Number(w[countField]); const min = type === 'quiz' ? 3 : 5; const max = type === 'quiz' ? 10 : 15;
+    const count = Number(w[countField]); const min = 1; const max = type === 'quiz' ? 10 : 15;
     if (!Number.isInteger(count) || count < min || count > max) return toast(`Chọn số lượng từ ${min} đến ${max}.`);
   }
   w.error = null; state.job = { type, scope: key, question }; render({ bottom: true });
@@ -258,7 +258,7 @@ document.addEventListener('click', event => {
     openCitation(target.dataset.citation, article ? Number(article.dataset.message) : target.dataset.messageIndex === undefined ? undefined : Number(target.dataset.messageIndex)); return;
   }
   if (target.dataset.step) {
-    const field = target.dataset.field; const min = field === 'quizCount' ? 3 : 5; const max = field === 'quizCount' ? 10 : 15;
+    const field = target.dataset.field; const min = 1; const max = field === 'quizCount' ? 10 : 15;
     workspace()[field] = Math.max(min, Math.min(max, Number(workspace()[field]) + Number(target.dataset.step))); render(); return;
   }
   const action = target.dataset.action;
