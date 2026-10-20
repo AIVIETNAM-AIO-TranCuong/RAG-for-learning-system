@@ -80,7 +80,7 @@ h1, h2, h3 { font-weight: 600; }
 .source-footer strong { font-weight: 500; color: var(--foreground); font-size: 11px; }
 .source-footer svg { width: 16px; margin-top: 3px; }
 .source-footer p { margin: 3px 0 0; }
-.workspace { min-width: 0; padding: 34px 40px 16px; display: flex; flex-direction: column; height: calc(100dvh - 74px); min-height: 640px; }
+.workspace { min-width: 0; padding: 34px 40px 16px; display: flex; flex-direction: column; height: auto; min-height: 640px; }
 .workspace-heading { display: grid; grid-template-columns: minmax(220px, .8fr) minmax(0, 1.2fr); align-items: center; gap: 24px; flex-shrink: 0; }
 .workspace-intro { min-width: 0; display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .workspace-intro > div { min-width: 0; }
@@ -96,9 +96,7 @@ h1 { font-size: 27px; margin-bottom: 10px; letter-spacing: -.55px; line-height: 
 .tabs button svg { width: 17px; height: 17px; }
 .tabs button:hover { color: var(--foreground); }
 .tabs button[aria-selected=true] { color: var(--primary); border-bottom-color: var(--primary); }
-.workspace-panel { flex: 1; min-height: 0; margin-top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: auto; display: flex; flex-direction: column; }
-.workspace:has(.workspace-panel[aria-labelledby="tab-chat"]) { height: auto; }
-.workspace-panel[aria-labelledby="tab-chat"] { flex: 1 0 680px; min-height: 680px; }
+.workspace-panel { flex: 1 0 680px; min-height: 680px; margin-top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: auto; display: flex; flex-direction: column; }
 .workspace-footer { display: flex; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 9px; line-height: 1.6; padding-top: 13px; }
 .chat-stream { flex: 1; min-height: 0; overflow: auto; padding: 26px 34px; scroll-behavior: smooth; }
 .chat-inner { max-width: 770px; margin: 0 auto; }
@@ -225,14 +223,14 @@ dialog::backdrop { background: #00000030; }
 @media (min-width: 1550px) { .workspace { padding-left: 60px; padding-right: 60px; } }
 @media (max-width: 1100px) { .workspace-heading { grid-template-columns: minmax(0, 1fr); gap: 16px; } }
 @media (max-width: 1100px) { .topbar { padding: 0 22px; }.workspace { padding: 28px 24px 14px; }.app-shell { grid-template-columns: 260px minmax(0,1fr); }.tabs { column-gap: 22px; }.tabs button { font-size: 11px; }.chat-stream, .learning { padding: 24px; } }
-@media (max-width: 900px) { .app-shell { display: block; }.app-shell > .sources { display: none; }.workspace { height: calc(100dvh - 74px); }.mobile-sources { display: inline-flex; }.tabs { grid-template-columns: repeat(4,1fr); gap: 12px; }.workspace-heading { align-items: center; }.brand-subtitle { font-size: 14px; }.brand-separator { padding: 0 8px; } }
+@media (max-width: 900px) { .app-shell { display: block; }.app-shell > .sources { display: none; }.mobile-sources { display: inline-flex; }.tabs { grid-template-columns: repeat(4,1fr); gap: 12px; }.workspace-heading { align-items: center; }.brand-subtitle { font-size: 14px; }.brand-separator { padding: 0 8px; } }
 @media (max-width: 540px) {
   .system-prompt-editor textarea { font-size: 16px; }
   .topbar { height: 65px; padding: 0 16px; gap: 10px; }.brand { gap: 8px; font-size: 16px; }.brand-subtitle { display: none; }.brand-separator { display: none; }.demo-label { font-size: 8px; }.brand-mark { width: 30px; height: 30px; border-radius: 8px; }
   .top-actions { gap: 4px; }.top-actions .button { padding: 6px 8px; min-height: 35px; font-size: 10px; }.connection svg { display: none; }.status-dot { width: 6px; height: 6px; }
   .app-shell { min-height: calc(100dvh - 65px); }.workspace { padding: 23px 16px 12px; height: auto; min-height: calc(100dvh - 65px); }.workspace-heading { gap: 8px; }.eyebrow { font-size: 8px; margin-bottom: 9px; }h1 { font-size: 22px; max-width: 230px; letter-spacing: -.3px; }.scope-label { font-size: 10px; }.mobile-sources { padding: 7px 9px; font-size: 10px; }.mobile-sources svg { width: 14px; }
   .mode-notice { margin-top: 16px; font-size: 10px; }.tabs { grid-template-columns: repeat(2,1fr); gap: 0 15px; margin-top: 13px; border-bottom: 0; }.tabs button { min-height: 41px; border-bottom: 1px solid var(--tab-rail); }.tabs button[aria-selected=true] { border-bottom: 2px solid var(--primary); }
-  .workspace-panel { min-height: 480px; max-height: none; margin-top: 14px; border-radius: 12px; }.chat-stream { padding: 20px 18px; flex: 0 1 auto; max-height: 62dvh; min-height: 300px; }.question, .answer { font-size: 12px; }.question { max-width: 95%; padding: 10px 12px; margin-bottom: 20px; }.answer h2, .answer h3 { font-size: 13px; }.answer-actions { flex-wrap: wrap; }.message { margin-bottom: 16px; }.composer-wrap { margin-top: auto; padding: 0 12px 12px; }.composer textarea { font-size: 12px; }.composer-context { font-size: 9px; }.composer-note { font-size: 8px; }.workspace-footer { font-size: 8px; }.workspace-footer span:last-child { display: none; }
+  .workspace-panel { max-height: none; margin-top: 14px; border-radius: 12px; }.chat-stream { padding: 20px 18px; flex: 0 1 auto; max-height: 62dvh; min-height: 300px; }.question, .answer { font-size: 12px; }.question { max-width: 95%; padding: 10px 12px; margin-bottom: 20px; }.answer h2, .answer h3 { font-size: 13px; }.answer-actions { flex-wrap: wrap; }.message { margin-bottom: 16px; }.composer-wrap { margin-top: auto; padding: 0 12px 12px; }.composer textarea { font-size: 12px; }.composer-context { font-size: 9px; }.composer-note { font-size: 8px; }.workspace-footer { font-size: 8px; }.workspace-footer span:last-child { display: none; }
   .welcome { padding: 20px 0; }.welcome h2 { font-size: 20px; }.welcome p { font-size: 12px; }.suggestion { font-size: 11px; }.learning { padding: 22px 18px; }.section-heading { align-items: flex-start; flex-wrap: wrap; }.section-heading h2 { font-size: 17px; }.section-heading .button { font-size: 11px; }.form-row { gap: 12px; }.form-field { flex-basis: 100%; }.form-row > .button { flex: 1; }.empty-state { padding: 35px 5px; }.flashcard { padding: 24px 18px; min-height: 230px; }.card-text { font-size: 19px; }.flashcard.flipped .card-text { font-size: 15px; }.card-controls { gap: 9px; }.card-controls .button { font-size: 11px; padding: 8px 11px; }.card-keyboard { font-size: 9px; }
 }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; } }
