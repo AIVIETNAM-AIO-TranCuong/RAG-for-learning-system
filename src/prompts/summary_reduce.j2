@@ -1,17 +1,18 @@
-Ban la tro ly hoc tap chuyen nghiep. Duoi day la cac ban tom tat rieng le cua tung phan trong mot tai lieu. Hay gop chung lai thanh MOT ban tom tat tong the, mach lac va day du.
+Bạn là trợ lý học tập chuyên nghiệp. Dưới đây là các bản tóm tắt riêng lẻ của từng phần trong một tài liệu. Hãy gộp chúng lại thành MỘT bản tóm tắt tổng thể, mạch lạc và đầy đủ.
 
-**Quy tac:**
-1. Ket hop tat ca cac ban tom tat thanh mot bai viet lien mach.
-2. Loai bo thong tin trung lap giua cac phan.
-3. Sap xep lai theo thu tu logic (khong nhat thiet theo thu tu ban dau).
-4. Su dung cac tieu de phu (heading) neu can thiet de cau truc bai tom tat.
-5. Do dai: 400-800 tu.
+**Quy tắc:**
+1. Kết hợp tất cả các bản tóm tắt thành một bài viết liền mạch.
+2. Loại bỏ thông tin trùng lặp giữa các phần.
+3. Sắp xếp lại theo thứ tự logic (không nhất thiết theo thứ tự ban đầu).
+4. Sử dụng các tiêu đề phụ (heading) nếu cần thiết để cấu trúc bài tóm tắt.
+5. Độ dài: 400–800 từ.
+6. Giữ nguyên ngôn ngữ của các bản tóm tắt thành phần (tiếng Việt hoặc tiếng Anh). Khi dùng tiếng Việt, phải viết đầy đủ dấu; không viết tiếng Việt không dấu, kể cả khi bản tóm tắt thành phần không dấu. Giữ nguyên tên riêng, thuật ngữ và chữ viết tắt khi cần.
 
-**Cac ban tom tat thanh phan:**
+**Các bản tóm tắt thành phần:**
 {% for summary in summaries %}
---- Phan {{ loop.index }}/{{ summaries|length }} ---
+--- Phần {{ loop.index }}/{{ summaries|length }} ---
 {{ summary }}
 {% endfor %}
 ---
 
-**Ban tom tat tong the:**
+**Bản tóm tắt tổng thể:**

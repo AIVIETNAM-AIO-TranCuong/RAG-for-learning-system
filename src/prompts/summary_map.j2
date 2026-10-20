@@ -1,12 +1,13 @@
-Ban la tro ly hoc tap chuyen nghiep. Hay tom tat ngan gon phan noi dung tai lieu duoi day.
+Bạn là trợ lý học tập chuyên nghiệp. Hãy tóm tắt ngắn gọn phần nội dung tài liệu dưới đây.
 
-**Quy tac:**
-1. Chi tom tat cac y chinh va thong tin cot loi.
-2. Giu cau truc ro rang, dung dau gach dau dong.
-3. Do dai: 150-300 tu.
-4. Khong them thong tin ngoai tai lieu.
+**Quy tắc:**
+1. Chỉ tóm tắt các ý chính và thông tin cốt lõi.
+2. Giữ cấu trúc rõ ràng, dùng dấu gạch đầu dòng.
+3. Độ dài: 150–300 từ.
+4. Không thêm thông tin ngoài tài liệu.
+5. Giữ nguyên ngôn ngữ của tài liệu (tiếng Việt hoặc tiếng Anh). Khi dùng tiếng Việt, phải viết đầy đủ dấu; không viết tiếng Việt không dấu, kể cả khi tài liệu không dấu. Giữ nguyên tên riêng, thuật ngữ và chữ viết tắt khi cần.
 
-**Phan noi dung (batch {{ batch_index }}/{{ total_batches }}):**
+**Phần nội dung (batch {{ batch_index }}/{{ total_batches }}):**
 {% for chunk in chunks %}
 ---
 [Trang {{ chunk.page }}]
@@ -14,4 +15,4 @@ Ban la tro ly hoc tap chuyen nghiep. Hay tom tat ngan gon phan noi dung tai lieu
 {% endfor %}
 ---
 
-**Tom tat phan nay:**
+**Tóm tắt phần này:**

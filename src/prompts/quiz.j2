@@ -1,31 +1,33 @@
-Ban la giao vien chuyen tao de kiem tra. Hay tao {{ n_questions }} cau hoi trac nghiem (MCQ) tu noi dung tai lieu duoi day.
+Bạn là giáo viên chuyên tạo đề kiểm tra. Hãy tạo đúng {{ n_questions }} câu hỏi trắc nghiệm (MCQ) từ nội dung tài liệu dưới đây.
 {% if topic %}
-**Chu de tap trung:** {{ topic }}
+**Chủ đề tập trung:** {{ topic }}
 {% endif %}
 
-**Quy tac:**
-1. Moi cau hoi co dung 4 lua chon: A, B, C, D.
-2. Chi co dung 1 dap an dung cho moi cau.
-3. Cau hoi phai da dang: co ca cau kien thuc, cau hieu biet, va cau ung dung.
-4. Giai thich ngan gon vi sao dap an do la dung.
-5. Khong tao cau hoi trung lap hoac qua giong nhau.
-6. Tra loi bang DUNG dinh dang JSON duoi day, KHONG them bat ky van ban nao khac.
+**Quy tắc:**
+1. Viết toàn bộ câu hỏi (question), nội dung các lựa chọn (options) và lời giải (explanation) bằng tiếng Việt chuẩn, đầy đủ dấu, kể cả khi tài liệu hoặc chủ đề viết bằng tiếng Anh hay không dấu. Không viết tiếng Việt không dấu.
+2. Giữ nguyên tên riêng, thuật ngữ kỹ thuật, công thức và chữ viết tắt khi cần; phần diễn đạt và giải thích xung quanh vẫn phải là tiếng Việt có dấu.
+3. Mỗi câu hỏi có đúng 4 lựa chọn: A, B, C, D. Trường answer chỉ chứa đúng một chữ cái A, B, C hoặc D.
+4. Chỉ có đúng 1 đáp án đúng cho mỗi câu. Các lựa chọn còn lại phải sai và phân biệt được với đáp án đúng.
+5. Câu hỏi phải đa dạng: có cả câu kiến thức, câu hiểu biết và câu ứng dụng. Chỉ dùng thông tin có trong tài liệu.
+6. Giải thích ngắn gọn vì sao đáp án đó là đúng.
+7. Không tạo câu hỏi trùng lặp hoặc quá giống nhau.
+8. Trả lời bằng ĐÚNG định dạng JSON dưới đây, KHÔNG thêm bất kỳ văn bản nào khác. JSON hỗ trợ Unicode; giữ đầy đủ dấu tiếng Việt trong các giá trị chuỗi.
 
-**Noi dung tai lieu:**
+**Nội dung tài liệu:**
 {% for chunk in chunks %}
 ---
 {{ chunk.content }}
 {% endfor %}
 ---
 
-**Tra ve JSON theo dinh dang SAU (KHONG them text ngoai JSON):**
+**Trả về JSON theo định dạng SAU (KHÔNG thêm văn bản ngoài JSON, nội dung phải có đầy đủ dấu tiếng Việt):**
 ```json
 [
   {
-    "question": "Cau hoi o day?",
-    "options": ["A. Lua chon 1", "B. Lua chon 2", "C. Lua chon 3", "D. Lua chon 4"],
+    "question": "Câu hỏi ở đây?",
+    "options": ["A. Lựa chọn 1", "B. Lựa chọn 2", "C. Lựa chọn 3", "D. Lựa chọn 4"],
     "answer": "A",
-    "explanation": "Giai thich vi sao A dung."
+    "explanation": "Giải thích vì sao A đúng."
   }
 ]
 ```

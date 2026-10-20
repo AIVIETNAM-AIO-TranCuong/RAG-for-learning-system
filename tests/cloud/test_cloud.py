@@ -50,11 +50,11 @@ class FakeAI:
             if isinstance(self.ranking, Exception):
                 raise self.ranking
             return self.ranking
-        if "trac nghiem (MCQ)" in prompt:
+        if "(MCQ)" in prompt:
             return json.dumps([dict(question=f"Câu hỏi {i}", options=["A. 1", "B. 2", "C. 3", "D. 4"], answer="A", explanation="Lý do") for i in range(20)])
         if "flashcards" in prompt:
             return json.dumps([dict(front=f"Thẻ {i}", back="Trả lời") for i in range(30)])
-        if "tom tat" in prompt:
+        if "tóm tắt" in prompt.lower():
             self.active += 1
             self.peak = max(self.peak, self.active)
             try:
