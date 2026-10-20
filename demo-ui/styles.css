@@ -97,8 +97,10 @@ h1 { font-size: 27px; margin-bottom: 10px; letter-spacing: -.55px; line-height: 
 .tabs button:hover { color: var(--foreground); }
 .tabs button[aria-selected=true] { color: var(--primary); border-bottom-color: var(--primary); }
 .workspace-panel { flex: 1; min-height: 0; margin-top: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; overflow: auto; display: flex; flex-direction: column; }
+.workspace:has(.workspace-panel[aria-labelledby="tab-chat"]) { height: auto; }
+.workspace-panel[aria-labelledby="tab-chat"] { flex: 1 0 680px; min-height: 680px; }
 .workspace-footer { display: flex; justify-content: space-between; gap: 20px; color: var(--muted); font-size: 9px; line-height: 1.6; padding-top: 13px; }
-.chat-stream { flex: 1; overflow: auto; padding: 26px 34px; scroll-behavior: smooth; }
+.chat-stream { flex: 1; min-height: 0; overflow: auto; padding: 26px 34px; scroll-behavior: smooth; }
 .chat-inner { max-width: 770px; margin: 0 auto; }
 .message { margin-bottom: 27px; }
 .question { margin: 0 0 24px auto; width: fit-content; max-width: 85%; background: var(--background); border-radius: 18px 18px 4px 18px; padding: 12px 17px; font-size: 14px; line-height: 1.7; white-space: pre-wrap; overflow-wrap: anywhere; }
