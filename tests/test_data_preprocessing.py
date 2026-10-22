@@ -1,5 +1,11 @@
 import sys
 from pathlib import Path
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
+import sys
+from pathlib import Path
 
 # Add root directory to sys.path to allow importing from src
 sys.path.append(str(Path(__file__).parent))

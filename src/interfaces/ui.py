@@ -350,7 +350,7 @@ with tab_qa:
         elif not is_online:
             st.error("Server API đang offline. Vui lòng bật FastAPI server.")
         else:
-            with st.spinner("Đang tìm kiếm tài liệu, rerank và tổng hợp câu trả lời..."):
+            with st.spinner("Đang tìm câu trả lời..."):
                 try:
                     doc_filter = None if selected_doc_id == "all" else selected_doc_id
                     ans_data = api.ask(question=user_question.strip(), doc_id=doc_filter)

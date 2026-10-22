@@ -26,12 +26,16 @@ class GeminiBackend(LLMBackend):
             raise ValueError("GEMINI_API_KEY chua duoc cau hinh. Them vao .env: GEMINI_API_KEY=your_key_here")
 
         genai.configure(api_key=settings.gemini_api_key)
-        self.model = genai.GenerativeModel(settings.gemini_model)
-        print(f"Gemini backend initialized: {settings.gemini_model}")
+        self.model_name = settings.gemini_model
+        self.model = genai.GenerativeModel(self.model_name)
+        print(f"Gemini backend initialized: {self.model_name}")
 
     def generate(self, prompt: str) -> str:
         import time
-        max_retries = 4
+        import re
+        import google.generativeai as genai
+        max_retries = 6
+        fallback_models = ["gemini-2.5-flash-lite", "gemini-flash-latest", "gemini-3.5-flash-lite"]
         for attempt in range(max_retries):
             try:
                 response = self.model.generate_content(prompt)
@@ -39,9 +43,26 @@ class GeminiBackend(LLMBackend):
             except Exception as e:
                 err_str = str(e)
                 if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
+                    if "per_day" in err_str.lower() or "free_tier_requests" in err_str or "daily" in err_str.lower():
+                        for fb in fallback_models:
+                            if fb != self.model_name:
+                                print(f"  [Gemini Quota Exceeded] Chuyển sang model dự phòng: {fb}...")
+                                try:
+                                    self.model_name = fb
+                                    self.model = genai.GenerativeModel(fb)
+                                    res = self.model.generate_content(prompt)
+                                    return res.text
+                                except Exception:
+                                    continue
+                    
+                    # Xác định thời gian đợi RPM (mặc định đợi 15s - 35s)
+                    sleep_s = 15.0 * (attempt + 1)
+                    match = re.search(r'retry in (\d+(?:\.\d+)?)s', err_str)
+                    if match:
+                        sleep_s = max(sleep_s, float(match.group(1)) + 2.0)
+                    
                     if attempt < max_retries - 1:
-                        sleep_s = 3 * (attempt + 1)
-                        print(f"  [Gemini Rate Limit] Doi {sleep_s}s de retry...")
+                        print(f"  [Gemini Rate Limit] Đợi {sleep_s:.1f}s để qua ngưỡng giới hạn RPM (Lần thử {attempt + 1}/{max_retries})...")
                         time.sleep(sleep_s)
                         continue
                 raise

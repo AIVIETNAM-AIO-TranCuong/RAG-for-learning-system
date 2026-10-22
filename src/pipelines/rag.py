@@ -10,7 +10,7 @@ Cac ham chinh:
 
 import re
 from pathlib import Path
-from typing import List, Optional
+from typing import List, Optional, Any
 
 from jinja2 import Environment, FileSystemLoader
 
@@ -113,14 +113,19 @@ def retrieve(
     query: str,
     top_k: int = None,
     document_id: Optional[str] = None,
+    store: Optional[Any] = None,
+    use_hybrid: bool = False,
 ) -> List[RetrievedChunk]:
     """
     Thuc hien semantic search tren Qdrant va tra ve cac chunks lien quan.
+    Co the ket hop Sparse BM25 voi Reciprocal Rank Fusion neu use_hybrid=True.
 
     Args:
         query: Cau hoi / noi dung can tim kiem
         top_k: So chunks tra ve (mac dinh: settings.initial_k)
         document_id: Chi tim trong tai lieu nay (None = tim tat ca)
+        store: Custom QdrantStore instance (optional)
+        use_hybrid: Neu True, ket hop Dense Search + Sparse BM25 bang RRF
 
     Returns:
         List[RetrievedChunk] sap xep theo score giam dan
@@ -128,11 +133,19 @@ def retrieve(
     if top_k is None:
         top_k = settings.initial_k
 
-    store = get_store()
-    query_vector = store.embed_text(query)
-    scored_points = store.search(query_vector, top_k=top_k, document_id=document_id)
+    active_store = store or get_store()
+    query_vector = active_store.embed_text(query)
+    scored_points = active_store.search(query_vector, top_k=top_k, document_id=document_id)
 
     chunks = [_scored_point_to_chunk(p) for p in scored_points]
+
+    if use_hybrid and document_id:
+        from src.core.hybrid import get_bm25_retriever_for_document, reciprocal_rank_fusion
+        bm25_retriever = get_bm25_retriever_for_document(document_id, store=active_store)
+        if bm25_retriever:
+            sparse_chunks = bm25_retriever.search(query, top_k=top_k)
+            chunks = reciprocal_rank_fusion(dense_chunks=chunks, sparse_chunks=sparse_chunks, k=60, top_k=top_k)
+
     return chunks
 
 
@@ -178,29 +191,50 @@ def rerank(
 def answer(
     query: str,
     document_id: Optional[str] = None,
+    use_reranker: bool = True,
+    use_hybrid: bool = False,
+    initial_k: Optional[int] = None,
+    top_k: Optional[int] = None,
+    store: Optional[Any] = None,
 ) -> RagAnswer:
     """
-    End-to-end RAG pipeline: retrieve -> rerank -> render prompt -> LLM -> RagAnswer.
+    End-to-end RAG pipeline: retrieve -> rerank (optional) -> render prompt -> LLM -> RagAnswer.
 
     Args:
         query: Cau hoi cua nguoi dung
         document_id: Chi tim trong tai lieu nay (None = tim tat ca)
+        use_reranker: Neu False, bo qua tang rerank (cho phep danh gia baseline/ablation)
+        use_hybrid: Neu True, dung Hybrid Search (Dense + BM25 RRF)
+        initial_k: So chunks thu hoi ban dau (mac dinh settings.initial_k)
+        top_k: So chunks giu lai de nap vao LLM (mac dinh settings.top_k)
+        store: Custom QdrantStore instance (optional)
 
     Returns:
         RagAnswer voi answer text co inline markers [S1][S2]..., danh sach citations, va chunks
     """
-    # 1. Retrieve nhieu chunks (initial_k) de co nhieu ung vien cho reranking
-    initial_chunks = retrieve(query, top_k=settings.initial_k, document_id=document_id)
+    init_k = initial_k or settings.initial_k
+    final_k = top_k or settings.top_k
 
-    if not initial_chunks:
-        return RagAnswer(
-            answer="Khong tim thay thong tin lien quan trong tai lieu.",
-            citations=[],
-            chunks=[],
-        )
-
-    # 2. Rerank de giu lai cac chunks chinh xac nhat
-    final_chunks = rerank(initial_chunks, query, rerank_k=settings.rerank_k)
+    if use_reranker:
+        # 1. Retrieve nhieu chunks (initial_k) de co nhieu ung vien cho reranking
+        initial_chunks = retrieve(query, top_k=init_k, document_id=document_id, store=store, use_hybrid=use_hybrid)
+        if not initial_chunks:
+            return RagAnswer(
+                answer="Khong tim thay thong tin lien quan trong tai lieu.",
+                citations=[],
+                chunks=[],
+            )
+        # 2. Rerank de giu lai cac chunks chinh xac nhat
+        final_chunks = rerank(initial_chunks, query, rerank_k=final_k)
+    else:
+        # Lay truc tiep top_k chunks khong qua Cross-Encoder
+        final_chunks = retrieve(query, top_k=final_k, document_id=document_id, store=store, use_hybrid=use_hybrid)
+        if not final_chunks:
+            return RagAnswer(
+                answer="Khong tim thay thong tin lien quan trong tai lieu.",
+                citations=[],
+                chunks=[],
+            )
 
     # 3. Xay dung context cho Jinja2 template
     # Moi chunk duoc gan marker S1, S2, ...

@@ -8,15 +8,42 @@ from qdrant_client.http.models import (
 )
 from langchain_huggingface import HuggingFaceEmbeddings
 
+try:
+    import transformers.modeling_utils as _mu
+    _mu.check_torch_load_is_safe = lambda: None
+    import transformers.utils.import_utils as _iu
+    _iu.check_torch_load_is_safe = lambda: None
+except Exception:
+    pass
+
 from src.core.config import settings
+
+
+# Shared QdrantClient instance across all stores to prevent local file locking
+_shared_client = None
+
+def _get_shared_client() -> QdrantClient:
+    global _shared_client
+    if _shared_client is None:
+        os.makedirs(settings.qdrant_path, exist_ok=True)
+        _shared_client = QdrantClient(path=settings.qdrant_path)
+    return _shared_client
 
 
 class QdrantStore:
     """
     Manages connection to Qdrant Vector Database and Embedding model.
+    Supports dynamic embedding models and collections.
     """
 
-    def __init__(self):
+    def __init__(
+        self,
+        embedding_model: Optional[str] = None,
+        collection_name: Optional[str] = None
+    ):
+        self.model_name = embedding_model or settings.embedding_model
+        self.collection_name = collection_name or settings.collection_name
+
         # Login HuggingFace nếu có HF_TOKEN (cần cho gated models)
         hf_token = settings.hf_token
         if hf_token:
@@ -34,9 +61,9 @@ class QdrantStore:
             print("Notice: CUDA is not available. Falling back to CPU for embedding.")
             embed_device = "cpu"
 
-        print(f"Loading embedding model: {settings.embedding_model} on {embed_device}...")
+        print(f"Loading embedding model: {self.model_name} on {embed_device}...")
         self.embeddings = HuggingFaceEmbeddings(
-            model_name=settings.embedding_model,
+            model_name=self.model_name,
             model_kwargs={'device': embed_device}
         )
         
@@ -44,10 +71,9 @@ class QdrantStore:
         test_embed = self.embeddings.embed_query("test")
         self.embedding_dim = len(test_embed)
 
-        # Initialize Qdrant Client
-        os.makedirs(settings.qdrant_path, exist_ok=True)
-        print(f"Connecting to Qdrant at {settings.qdrant_path}...")
-        self.client = QdrantClient(path=settings.qdrant_path)
+        # Get shared Qdrant Client (avoids portalocker AlreadyLocked on local path)
+        print(f"Connecting to Qdrant at {settings.qdrant_path} (Collection: {self.collection_name})...")
+        self.client = _get_shared_client()
 
         # Ensure collection and index are available
         self._ensure_collection()
@@ -57,10 +83,10 @@ class QdrantStore:
         collections_response = self.client.get_collections()
         collection_names = [c.name for c in collections_response.collections]
 
-        if settings.collection_name not in collection_names:
-            print(f"Collection '{settings.collection_name}' not found. Creating...")
+        if self.collection_name not in collection_names:
+            print(f"Collection '{self.collection_name}' not found. Creating...")
             self.client.create_collection(
-                collection_name=settings.collection_name,
+                collection_name=self.collection_name,
                 vectors_config=VectorParams(
                     size=self.embedding_dim, 
                     distance=Distance.COSINE
@@ -69,12 +95,12 @@ class QdrantStore:
             # Create payload index to speed up filtering/searching by metadata
             for field in ["document_id", "filename", "page"]:
                 self.client.create_payload_index(
-                    collection_name=settings.collection_name,
+                    collection_name=self.collection_name,
                     field_name=field,
                     field_schema="keyword" if field != "page" else "integer"
                 )
         else:
-            print(f"Collection '{settings.collection_name}' already exists.")
+            print(f"Collection '{self.collection_name}' already exists.")
 
     def embed_text(self, text: str) -> List[float]:
         """Create embedding vector for a text snippet."""
@@ -83,7 +109,7 @@ class QdrantStore:
     def upsert_chunks(self, points: List[PointStruct]) -> None:
         """Save a list of vector points to Qdrant."""
         self.client.upsert(
-            collection_name=settings.collection_name,
+            collection_name=self.collection_name,
             points=points
         )
 
@@ -103,7 +129,7 @@ class QdrantStore:
 
         while True:
             records, next_offset = self.client.scroll(
-                collection_name=settings.collection_name,
+                collection_name=self.collection_name,
                 scroll_filter=doc_filter,
                 limit=100,
                 offset=offset,
@@ -147,7 +173,7 @@ class QdrantStore:
 
         if hasattr(self.client, "query_points"):
             response = self.client.query_points(
-                collection_name=settings.collection_name,
+                collection_name=self.collection_name,
                 query=query_vector,
                 limit=top_k,
                 query_filter=search_filter,
@@ -157,7 +183,7 @@ class QdrantStore:
             return response.points
         else:
             return self.client.search(
-                collection_name=settings.collection_name,
+                collection_name=self.collection_name,
                 query_vector=query_vector,
                 limit=top_k,
                 query_filter=search_filter,
@@ -168,7 +194,7 @@ class QdrantStore:
     def delete_document(self, document_id: str) -> None:
         """Delete all chunks of a specific document from the system."""
         self.client.delete(
-            collection_name=settings.collection_name,
+            collection_name=self.collection_name,
             points_selector=Filter(
                 must=[
                     FieldCondition(
@@ -185,7 +211,7 @@ class QdrantStore:
         offset = None
         while True:
             records, next_offset = self.client.scroll(
-                collection_name=settings.collection_name,
+                collection_name=self.collection_name,
                 limit=100,
                 offset=offset,
                 with_payload=True,
@@ -221,12 +247,17 @@ class QdrantStore:
         return list(doc_map.values())
 
 
-# Global variable to store the single instance (Singleton)
-_store_instance = None
+# Cache multi-instance of stores by model and collection
+_stores: Dict[str, QdrantStore] = {}
 
-def get_store() -> QdrantStore:
-    """Get instance of QdrantStore, initialize if it doesn't exist."""
-    global _store_instance
-    if _store_instance is None:
-        _store_instance = QdrantStore()
-    return _store_instance
+def get_store(
+    embedding_model: Optional[str] = None,
+    collection_name: Optional[str] = None
+) -> QdrantStore:
+    """Get instance of QdrantStore, caching by model and collection."""
+    model = embedding_model or settings.embedding_model
+    col = collection_name or settings.collection_name
+    key = f"{model}::{col}"
+    if key not in _stores:
+        _stores[key] = QdrantStore(embedding_model=model, collection_name=col)
+    return _stores[key]

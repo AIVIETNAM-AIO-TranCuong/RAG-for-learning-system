@@ -1,8 +1,16 @@
+import os
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
 import re
 import unicodedata
 
 try:
     import tensorflow as tf
+    # Đảm bảo TensorFlow không chiếm dụng VRAM của PyTorch trên GPU
+    try:
+        tf.config.set_visible_devices([], 'GPU')
+    except Exception:
+        pass
     HAS_TF = True
 except ImportError:
     HAS_TF = False

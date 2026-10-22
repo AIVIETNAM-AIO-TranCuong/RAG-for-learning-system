@@ -317,7 +317,6 @@ def cmd_delete_doc(
             console.print("[yellow]Huy thao tac xoa.[/yellow]")
             return
 
-    with console.status(f"[red]Dang xoa tai lieu {doc_id}...[/red]"):
         try:
             store = get_store()
             store.delete_document(doc_id)
@@ -325,7 +324,66 @@ def cmd_delete_doc(
         except Exception as e:
             console.print(f"[bold red]Loi xoa tai lieu:[/bold red] {str(e)}")
             raise typer.Exit(code=1)
+# ============================================================
+# COMMAND: EVALUATE (RAGAS EVALUATION & EXPERIMENTS)
+# ============================================================
+
+@app.command("evaluate")
+def cmd_evaluate(
+    pdf_path: Optional[str] = typer.Option(None, "--pdf", "-p", help="Đường dẫn đến tệp PDF thử nghiệm"),
+    testset_path: str = typer.Option("data/evaluation/testset_qa_gt.json", "--testset", "-t", help="Đường dẫn bộ testset ground truth"),
+    experiment: str = typer.Option("all", "--exp", "-e", help="Thực nghiệm cần chạy: '1' (Chunking), '2' (Reranker), hoặc 'all'"),
+    samples: int = typer.Option(3, "--samples", "-n", help="Số lượng mẫu câu hỏi đánh giá"),
+):
+    """Đánh giá hệ thống RAG theo framework RAGAS và các phương pháp trong thực nghiệm."""
+    repo_root = Path(__file__).parent.parent.parent
+    t_path = Path(testset_path)
+    if not t_path.is_absolute():
+        t_path = repo_root / t_path
+
+    if not t_path.exists():
+        console.print(f"[bold red]Lỗi:[/bold red] Không tìm thấy bộ testset tại {t_path}")
+        raise typer.Exit(code=1)
+
+    if pdf_path:
+        p_path = Path(pdf_path)
+    else:
+        # Tự động tìm PDF trong data/pdfs
+        candidates = list((repo_root / "data" / "pdfs").glob("*.pdf"))
+        if not candidates:
+            console.print("[bold red]Lỗi:[/bold red] Không tìm thấy tệp PDF trong thư mục data/pdfs/")
+            raise typer.Exit(code=1)
+        p_path = candidates[0]
+
+    console.print(Panel(
+        f"[bold green]RAGAS Evaluation Runner[/bold green]\n"
+        f"• Tài liệu: [cyan]{p_path.name}[/cyan]\n"
+        f"• Testset: [cyan]{t_path.name}[/cyan]\n"
+        f"• Số mẫu: [cyan]{samples}[/cyan]\n"
+        f"• Thực nghiệm: [cyan]{experiment}[/cyan]",
+        title="🧠 Đánh giá hệ thống RAG",
+        border_style="green"
+    ))
+
+    if experiment in ("1", "all"):
+        from experiments.run_exp1_chunking import run_experiment_1
+        console.print("\n[bold yellow]>>> Đang chạy Thực nghiệm 1 (Chunking Methods)...[/bold yellow]")
+        run_experiment_1(p_path, t_path, max_samples=samples)
+
+    if experiment in ("2", "all"):
+        from experiments.run_exp2_reranking import run_experiment_2
+        console.print("\n[bold yellow]>>> Đang chạy Thực nghiệm 2 (Cross-Encoder Reranker)...[/bold yellow]")
+        run_experiment_2(p_path, t_path, max_samples=samples)
+
+    # Xuất biểu đồ
+    from experiments.export_charts import plot_exp1_chunking, plot_exp2_reranking
+    console.print("\n[bold cyan]>>> Đang xuất biểu đồ thực nghiệm...[/bold cyan]")
+    plot_exp1_chunking()
+    plot_exp2_reranking()
+
+    console.print("[bold green]✓ Hoàn thành toàn bộ quy trình đánh giá và xuất biểu đồ thành công![/bold green]")
 
 
 if __name__ == "__main__":
     app()
+

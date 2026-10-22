@@ -32,15 +32,30 @@ env/
 # Database/Storage
 qdrant_storage/
 
-# Documentation
-docs/
-
 # Data
 data/
 *.csv
 *.xlsx
-*.json
 *.sqlite3
+
+# LaTeX build artifacts
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.bcf
+*.run.xml
+*-blx.bib
+*.synctex.gz
+
+# Temporary browser / test profiles
+temp_profile/
+test_font.pdf
+docs/report_latex/test_*
 
 # IDEs
 .idea/

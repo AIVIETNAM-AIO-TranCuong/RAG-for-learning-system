@@ -1,3 +1,9 @@
+import sys
+from pathlib import Path
+REPO_ROOT = Path(__file__).resolve().parent.parent
+if str(REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(REPO_ROOT))
+
 """
 Test suite cho Phase 4 -- Interfaces (FastAPI REST API & Typer CLI)
 Chay: python test_interfaces.py

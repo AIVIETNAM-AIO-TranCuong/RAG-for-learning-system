@@ -1,7 +1,7 @@
 import hashlib
 from pathlib import Path
 from uuid import uuid4
-from typing import List, Union
+from typing import List, Union, Optional, Any
 
 from langchain_community.document_loaders import PyPDFLoader
 from langchain_core.documents import Document
@@ -10,6 +10,7 @@ from qdrant_client.http.models import PointStruct
 
 from src.core.config import settings
 from src.core.schemas import ChunkMetadata
+from src.core.chunking import create_chunker
 from src.db.store import get_store
 from src.utils.tf_text_utils import preprocess_batch
 
@@ -199,13 +200,29 @@ def load_file_to_documents(path: Path) -> List[Document]:
         )
 
 
-def index_document(file_path: Union[str, Path], force_reindex: bool = False) -> str:
+def index_document(
+    file_path: Union[str, Path],
+    force_reindex: bool = False,
+    chunking_method: str = "recursive",
+    chunk_size: Optional[int] = None,
+    chunk_overlap: Optional[int] = None,
+    semantic_threshold_type: str = "interquartile",
+    semantic_threshold_amount: Optional[float] = None,
+    store: Optional[Any] = None,
+) -> str:
     """
-    Đọc tài liệu đa định dạng (PDF, DOCX, PPTX, TXT, MD), tiền xử lý, chunking, embedding và lưu vào Qdrant.
+    Đọc tài liệu đa định dạng (PDF, DOCX, PPTX, TXT, MD), tiền xử lý, chunking (recursive hoặc semantic),
+    embedding và lưu vào Qdrant.
     
     Args:
         file_path: Đường dẫn đến tệp tài liệu
         force_reindex: Nếu True, xóa dữ liệu cũ và index lại nếu tài liệu đã tồn tại
+        chunking_method: 'recursive' hoặc 'semantic'
+        chunk_size: Kích thước chunk (nếu dùng recursive)
+        chunk_overlap: Độ chồng lấp (nếu dùng recursive)
+        semantic_threshold_type: 'interquartile', 'standard_deviation', hoặc 'percentile' (nếu dùng semantic)
+        semantic_threshold_amount: Tham số tùy chỉnh ngưỡng semantic
+        store: Custom QdrantStore instance (optional)
         
     Returns:
         document_id của tài liệu đã được index
@@ -221,18 +238,28 @@ def index_document(file_path: Union[str, Path], force_reindex: bool = False) -> 
             f"Các định dạng hỗ trợ: {', '.join(sorted(SUPPORTED_EXTENSIONS))}"
         )
 
-    document_id = _make_document_id(path)
-    store = get_store()
+    # Thêm hậu tố method vào doc_id nếu là cấu hình tùy chỉnh để có thể index song song
+    c_size = chunk_size or settings.chunk_size
+    c_overlap = chunk_overlap or settings.chunk_overlap
+    raw_doc_id = _make_document_id(path)
+    if chunking_method == "semantic":
+        document_id = f"{raw_doc_id}_sem_{semantic_threshold_type}"
+    elif chunk_size is not None or chunk_overlap is not None:
+        document_id = f"{raw_doc_id}_rec_{c_size}_{c_overlap}"
+    else:
+        document_id = raw_doc_id
+
+    active_store = store or get_store()
 
     # Kiểm tra xem tài liệu đã từng được index chưa
-    existing_records = store.scroll_by_document(document_id)
+    existing_records = active_store.scroll_by_document(document_id)
     if existing_records:
         if not force_reindex:
-            print(f"Tài liệu {path.name} (ID: {document_id}) đã tồn tại. Bỏ qua index.")
+            print(f"Tài liệu {path.name} (ID: {document_id}) đã tồn tại trong {active_store.collection_name}. Bỏ qua index.")
             return document_id
         else:
             print(f"Tài liệu {path.name} (ID: {document_id}) đã tồn tại. Đang xóa dữ liệu cũ và index lại...")
-            store.delete_document(document_id)
+            active_store.delete_document(document_id)
 
     # 1. LOAD TÀI LIỆU THEO ĐỊNH DẠNG
     print(f"Đang đọc tài liệu: {path.name} ({ext})...")
@@ -252,23 +279,32 @@ def index_document(file_path: Union[str, Path], force_reindex: bool = False) -> 
         page.page_content = cleaned_texts[i]
 
     # 3. CHUNKING TEXT
-    print(f"Chunking văn bản (chunk_size={settings.chunk_size}, overlap={settings.chunk_overlap})...")
-    text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=settings.chunk_size,
-        chunk_overlap=settings.chunk_overlap,
-        separators=["\n\n", "\n", ".", " ", ""]
-    )
-    chunks = text_splitter.split_documents(pages)
+    if chunking_method == "semantic":
+        print(f"Chunking ngữ nghĩa (Semantic Chunking, threshold={semantic_threshold_type})...")
+        chunker = create_chunker(
+            method="semantic",
+            semantic_threshold_type=semantic_threshold_type,
+            semantic_threshold_amount=semantic_threshold_amount,
+            embeddings=active_store.embeddings
+        )
+    else:
+        print(f"Chunking đệ quy (Recursive Chunking, chunk_size={c_size}, overlap={c_overlap})...")
+        chunker = create_chunker(
+            method="recursive",
+            chunk_size=c_size,
+            chunk_overlap=c_overlap
+        )
+    chunks = chunker.split_documents(pages)
 
     if not chunks:
         print("Cảnh báo: Không tạo được chunk nào từ tệp này.")
         return document_id
 
     # 4. EMBEDDING & CHUẨN BỊ VECTORS
-    print(f"Đang tạo embedding và chuẩn bị lưu {len(chunks)} chunks vào Qdrant...")
+    print(f"Đang tạo embedding và chuẩn bị lưu {len(chunks)} chunks vào Qdrant ({active_store.collection_name})...")
     points = []
     chunk_texts = [chunk.page_content for chunk in chunks]
-    embeddings_list = store.embeddings.embed_documents(chunk_texts)
+    embeddings_list = active_store.embeddings.embed_documents(chunk_texts)
 
     for i, (chunk, embedding) in enumerate(zip(chunks, embeddings_list)):
         chunk_id = f"{document_id}_{i}"
@@ -295,8 +331,8 @@ def index_document(file_path: Union[str, Path], force_reindex: bool = False) -> 
 
     # 5. UPSERT VÀO QDRANT
     print(f"Đang lưu {len(points)} chunks vào Qdrant...")
-    store.upsert_chunks(points)
-    print(f"Đã lập chỉ mục thành công tài liệu '{path.name}' với {len(chunks)} chunks.")
+    active_store.upsert_chunks(points)
+    print(f"Đã lập chỉ mục thành công tài liệu '{path.name}' với {len(chunks)} chunks vào {active_store.collection_name}.")
 
     return document_id
 
