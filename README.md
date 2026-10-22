@@ -282,10 +282,3 @@ RAG_Learning_System/
 ├── .gitignore                        # Cấu hình bỏ qua file trong Git
 └── requirements.txt                  # Danh mục các thư viện Python
 ```
-
----
-
-## 👥 Nhóm tác giả & Giấy phép
-- **Dự án:** RAG for Learning System (NotebookLM Style)
-- **Tổ chức:** AI VIETNAM (AIO Course)
-- **Giấy phép:** MIT License
