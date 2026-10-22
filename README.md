@@ -8,7 +8,7 @@
 [![Streamlit](https://img.shields.io/badge/Frontend-Streamlit-FF4B4B.svg)](https://streamlit.io/)
 [![Ragas Evaluation](https://img.shields.io/badge/Evaluation-Ragas%20Metrics-blueviolet.svg)](https://github.com/explodinggradients/ragas)
 
-Hệ thống **RAG (Retrieval-Augmented Generation)** chuyên sâu hỗ trợ học tập, ôn luyện và nghiên cứu thông minh từ kho tài liệu cá nhân đa định dạng. Được lấy cảm hứng từ Google NotebookLM, hệ thống cung cấp pipeline truy xuất kết hợp (**Hybrid Search Dense + Sparse BM25**), tái xếp hạng (**Cross-Encoder Reranker**), phân đoạn ngữ nghĩa (**Semantic Chunking IQR**), trích dẫn nguồn minh bạch, tóm tắt tự động (**Map-Reduce**), tạo đề thi trắc nghiệm tương tác (**Interactive Quiz**) và thẻ ghi nhớ ôn tập (**Flashcards 3D**). Ngoài ra, dự án tích hợp đầy đủ bộ thực nghiệm định lượng (**Empirical Benchmark**) và báo cáo học thuật chuẩn **LaTeX**.
+Hệ thống **RAG (Retrieval-Augmented Generation)** chuyên sâu hỗ trợ học tập, ôn luyện và nghiên cứu thông minh từ kho tài liệu cá nhân đa định dạng. Được lấy cảm hứng từ Google NotebookLM, hệ thống cung cấp pipeline truy xuất kết hợp (**Hybrid Search Dense + Sparse BM25**), tái xếp hạng (**Cross-Encoder Reranker**), phân đoạn ngữ nghĩa (**Semantic Chunking IQR**), trích dẫn nguồn minh bạch, tóm tắt tự động (**Map-Reduce**), tạo đề thi trắc nghiệm tương tác (**Interactive Quiz**) và thẻ ghi nhớ ôn tập (**Flashcards 3D**). Ngoài ra, dự án tích hợp đầy đủ bộ thực nghiệm định lượng (**Empirical Benchmark**) đánh giá hiệu năng chuyên sâu.
 
 ---
 
@@ -71,7 +71,7 @@ Trong thư mục `experiments/`, hệ thống đã thực hiện đánh giá đ�
 > [!TIP]
 > **Điểm đột phá:** Khi kết hợp **Semantic Chunking (IQR)** cùng **Cross-Encoder Reranker** và **Hybrid Search (Dense + BM25 RRF)**, hệ thống giải quyết triệt để vấn đề mất thông tin khi truy vấn các từ viết tắt chuyên ngành (ví dụ: *LoRA, DPO, RLHF*), đồng thời nâng độ chính xác ngữ cảnh từ **33.5% lên 76.1%**.
 
-Toàn bộ biểu đồ phân tích trực quan được xuất tự động trong thư mục `experiments/output_charts/` và đồng bộ vào báo cáo LaTeX `docs/report_latex/Figures/`.
+Toàn bộ biểu đồ phân tích trực quan được xuất tự động trong thư mục `experiments/output_charts/`.
 
 ---
 
@@ -228,31 +228,11 @@ python experiments/run_exp4_hybrid_search.py
 python experiments/export_charts.py
 ```
 
----
-
-## 📄 Báo cáo học thuật LaTeX (Academic Report)
-
-Báo cáo nghiên cứu chi tiết được biên soạn trong thư mục `docs/report_latex/`:
-- **File nguồn:** `docs/report_latex/report_draft.tex`
-- **Tài liệu trích dẫn tham khảo:** `docs/report_latex/references.bib`
-- **Sơ đồ kiến trúc & hình minh họa:** `docs/report_latex/Figures/`
-- **Biên dịch:** Hỗ trợ biên dịch trực tiếp bằng `XeLaTeX` hoặc `pdfLaTeX` hỗ trợ font tiếng Việt chuẩn Unicode.
-
----
-
 ## 📁 Cấu trúc thư mục dự án
 
 ```text
 RAG_Learning_System/
 ├── data/                             # Thư mục lưu trữ tài liệu mẫu (.pdf, .docx, .pptx, .md, .txt)
-├── docs/                             # Tài liệu kỹ thuật, kế hoạch và báo cáo học thuật
-│   ├── report_latex/                 # Báo cáo đồ án định dạng LaTeX
-│   │   ├── Figures/                  # Sơ đồ kiến trúc, luồng xử lý và biểu đồ thực nghiệm
-│   │   ├── references.bib            # Danh mục tài liệu tham khảo BibTeX
-│   │   ├── report_draft.tex          # Mã nguồn LaTeX chính của báo cáo
-│   │   └── report_draft.pdf          # Báo cáo PDF đã biên dịch hoàn chỉnh
-│   ├── project_plan.md               # Kế hoạch tổng thể dự án
-│   └── evaluation_and_methods_plan.md # Kế hoạch và phương pháp luận thực nghiệm
 ├── experiments/                      # Bộ mã nguồn thực nghiệm & kết quả Benchmark
 │   ├── output_charts/                # Biểu đồ kết quả trực quan hóa (.png)
 │   ├── results_*.json                # Dữ liệu kết quả định lượng chi tiết (Exp 1 - Exp 4)

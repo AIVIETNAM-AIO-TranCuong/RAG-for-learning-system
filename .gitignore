@@ -32,6 +32,9 @@ env/
 # Database/Storage
 qdrant_storage/
 
+# Documentation
+docs/
+
 # Data
 data/
 *.csv
@@ -55,7 +58,6 @@ data/
 # Temporary browser / test profiles
 temp_profile/
 test_font.pdf
-docs/report_latex/test_*
 
 # IDEs
 .idea/
