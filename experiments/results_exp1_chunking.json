@@ -2,42 +2,42 @@
   {
     "config_name": "Recursive S:1500/O:200",
     "method": "recursive",
-    "total_chunks": 41,
+    "total_chunks": 267,
     "scores": {
-      "context_precision": 0.3333,
-      "context_recall": 0.3889,
+      "context_precision": 0.6111,
+      "context_recall": 0.5833,
       "faithfulness": 1.0,
-      "answer_relevancy": 0.8085
+      "answer_relevancy": 0.815
     },
     "items": [
       {
-        "sample_id": "eval_01",
-        "question": "LoRA (Low-Rank Adaptation) hoạt động như thế nào trong quá trình Fine-tuning mô hình ngôn ngữ lớn?",
+        "sample_id": "eval_fin_01",
+        "question": "Mục tiêu tổng quát của dự án phân tích tiền gửi tại AIV Bank là gì và được tổ chức theo bốn nhóm mục tiêu nào?",
         "scores": {
-          "context_precision": 1.0,
+          "context_precision": 0.3333,
           "context_recall": 0.5,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.899
+          "answer_relevancy": 0.785
         }
       },
       {
-        "sample_id": "eval_02",
-        "question": "Sự khác biệt chính giữa SFT (Supervised Fine-Tuning) và Pre-training là gì?",
+        "sample_id": "eval_fin_02",
+        "question": "Sự khác biệt trong cách ghi nhận tiền gửi và khoản cho vay giữa khách hàng và ngân hàng thương mại là gì?",
         "scores": {
-          "context_precision": 0.0,
-          "context_recall": 0.6667,
+          "context_precision": 0.75,
+          "context_recall": 0.5,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.766
+          "answer_relevancy": 0.83
         }
       },
       {
-        "sample_id": "eval_03",
-        "question": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
+        "sample_id": "eval_fin_03",
+        "question": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
         "scores": {
-          "context_precision": 0.0,
-          "context_recall": 0.0,
+          "context_precision": 0.75,
+          "context_recall": 0.75,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.7605
+          "answer_relevancy": 0.83
         }
       }
     ]
@@ -45,42 +45,42 @@
   {
     "config_name": "Recursive S:1000/O:150 (Baseline)",
     "method": "recursive",
-    "total_chunks": 60,
+    "total_chunks": 387,
     "scores": {
-      "context_precision": 0.5833,
-      "context_recall": 0.3889,
-      "faithfulness": 0.6667,
-      "answer_relevancy": 0.8151
+      "context_precision": 0.6667,
+      "context_recall": 0.5833,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8691
     },
     "items": [
       {
-        "sample_id": "eval_01",
-        "question": "LoRA (Low-Rank Adaptation) hoạt động như thế nào trong quá trình Fine-tuning mô hình ngôn ngữ lớn?",
-        "scores": {
-          "context_precision": 1.0,
-          "context_recall": 0.5,
-          "faithfulness": 1.0,
-          "answer_relevancy": 0.9309
-        }
-      },
-      {
-        "sample_id": "eval_02",
-        "question": "Sự khác biệt chính giữa SFT (Supervised Fine-Tuning) và Pre-training là gì?",
-        "scores": {
-          "context_precision": 0.75,
-          "context_recall": 0.6667,
-          "faithfulness": 0.0,
-          "answer_relevancy": 0.7618
-        }
-      },
-      {
-        "sample_id": "eval_03",
-        "question": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
+        "sample_id": "eval_fin_01",
+        "question": "Mục tiêu tổng quát của dự án phân tích tiền gửi tại AIV Bank là gì và được tổ chức theo bốn nhóm mục tiêu nào?",
         "scores": {
           "context_precision": 0.0,
           "context_recall": 0.0,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.7526
+          "answer_relevancy": 0.756
+        }
+      },
+      {
+        "sample_id": "eval_fin_02",
+        "question": "Sự khác biệt trong cách ghi nhận tiền gửi và khoản cho vay giữa khách hàng và ngân hàng thương mại là gì?",
+        "scores": {
+          "context_precision": 1.0,
+          "context_recall": 0.75,
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.9366
+        }
+      },
+      {
+        "sample_id": "eval_fin_03",
+        "question": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
+        "scores": {
+          "context_precision": 1.0,
+          "context_recall": 1.0,
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.9146
         }
       }
     ]
@@ -88,42 +88,42 @@
   {
     "config_name": "Recursive S:800/O:100",
     "method": "recursive",
-    "total_chunks": 71,
+    "total_chunks": 479,
     "scores": {
-      "context_precision": 0.5639,
-      "context_recall": 0.3889,
-      "faithfulness": 0.3333,
-      "answer_relevancy": 0.8126
+      "context_precision": 0.6667,
+      "context_recall": 0.5833,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.8314
     },
     "items": [
       {
-        "sample_id": "eval_01",
-        "question": "LoRA (Low-Rank Adaptation) hoạt động như thế nào trong quá trình Fine-tuning mô hình ngôn ngữ lớn?",
-        "scores": {
-          "context_precision": 0.8042,
-          "context_recall": 0.5,
-          "faithfulness": 1.0,
-          "answer_relevancy": 0.9285
-        }
-      },
-      {
-        "sample_id": "eval_02",
-        "question": "Sự khác biệt chính giữa SFT (Supervised Fine-Tuning) và Pre-training là gì?",
-        "scores": {
-          "context_precision": 0.8875,
-          "context_recall": 0.6667,
-          "faithfulness": 0.0,
-          "answer_relevancy": 0.7627
-        }
-      },
-      {
-        "sample_id": "eval_03",
-        "question": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
+        "sample_id": "eval_fin_01",
+        "question": "Mục tiêu tổng quát của dự án phân tích tiền gửi tại AIV Bank là gì và được tổ chức theo bốn nhóm mục tiêu nào?",
         "scores": {
           "context_precision": 0.0,
           "context_recall": 0.0,
-          "faithfulness": 0.0,
-          "answer_relevancy": 0.7466
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.788
+        }
+      },
+      {
+        "sample_id": "eval_fin_02",
+        "question": "Sự khác biệt trong cách ghi nhận tiền gửi và khoản cho vay giữa khách hàng và ngân hàng thương mại là gì?",
+        "scores": {
+          "context_precision": 1.0,
+          "context_recall": 0.75,
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.852
+        }
+      },
+      {
+        "sample_id": "eval_fin_03",
+        "question": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
+        "scores": {
+          "context_precision": 1.0,
+          "context_recall": 1.0,
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.8542
         }
       }
     ]
@@ -131,42 +131,42 @@
   {
     "config_name": "Recursive S:500/O:50",
     "method": "recursive",
-    "total_chunks": 108,
+    "total_chunks": 708,
     "scores": {
-      "context_precision": 0.3333,
-      "context_recall": 0.3556,
-      "faithfulness": 0.3333,
-      "answer_relevancy": 0.8127
+      "context_precision": 0.55,
+      "context_recall": 0.5833,
+      "faithfulness": 1.0,
+      "answer_relevancy": 0.7966
     },
     "items": [
       {
-        "sample_id": "eval_01",
-        "question": "LoRA (Low-Rank Adaptation) hoạt động như thế nào trong quá trình Fine-tuning mô hình ngôn ngữ lớn?",
-        "scores": {
-          "context_precision": 1.0,
-          "context_recall": 0.4,
-          "faithfulness": 1.0,
-          "answer_relevancy": 0.9047
-        }
-      },
-      {
-        "sample_id": "eval_02",
-        "question": "Sự khác biệt chính giữa SFT (Supervised Fine-Tuning) và Pre-training là gì?",
-        "scores": {
-          "context_precision": 0.0,
-          "context_recall": 0.6667,
-          "faithfulness": 0.0,
-          "answer_relevancy": 0.7627
-        }
-      },
-      {
-        "sample_id": "eval_03",
-        "question": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
+        "sample_id": "eval_fin_01",
+        "question": "Mục tiêu tổng quát của dự án phân tích tiền gửi tại AIV Bank là gì và được tổ chức theo bốn nhóm mục tiêu nào?",
         "scores": {
           "context_precision": 0.0,
           "context_recall": 0.0,
-          "faithfulness": 0.0,
-          "answer_relevancy": 0.7707
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.745
+        }
+      },
+      {
+        "sample_id": "eval_fin_02",
+        "question": "Sự khác biệt trong cách ghi nhận tiền gửi và khoản cho vay giữa khách hàng và ngân hàng thương mại là gì?",
+        "scores": {
+          "context_precision": 0.7,
+          "context_recall": 0.75,
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.822
+        }
+      },
+      {
+        "sample_id": "eval_fin_03",
+        "question": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
+        "scores": {
+          "context_precision": 0.95,
+          "context_recall": 1.0,
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.8228
         }
       }
     ]
@@ -174,42 +174,42 @@
   {
     "config_name": "Semantic (Interquartile)",
     "method": "semantic",
-    "total_chunks": 79,
+    "total_chunks": 415,
     "scores": {
-      "context_precision": 0.4444,
-      "context_recall": 0.4444,
+      "context_precision": 0.7889,
+      "context_recall": 1.0,
       "faithfulness": 1.0,
-      "answer_relevancy": 0.8139
+      "answer_relevancy": 0.91
     },
     "items": [
       {
-        "sample_id": "eval_01",
-        "question": "LoRA (Low-Rank Adaptation) hoạt động như thế nào trong quá trình Fine-tuning mô hình ngôn ngữ lớn?",
+        "sample_id": "eval_fin_01",
+        "question": "Mục tiêu tổng quát của dự án phân tích tiền gửi tại AIV Bank là gì và được tổ chức theo bốn nhóm mục tiêu nào?",
+        "scores": {
+          "context_precision": 0.5,
+          "context_recall": 1.0,
+          "faithfulness": 1.0,
+          "answer_relevancy": 0.8759
+        }
+      },
+      {
+        "sample_id": "eval_fin_02",
+        "question": "Sự khác biệt trong cách ghi nhận tiền gửi và khoản cho vay giữa khách hàng và ngân hàng thương mại là gì?",
         "scores": {
           "context_precision": 1.0,
-          "context_recall": 0.8333,
+          "context_recall": 1.0,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.911
+          "answer_relevancy": 0.9397
         }
       },
       {
-        "sample_id": "eval_02",
-        "question": "Sự khác biệt chính giữa SFT (Supervised Fine-Tuning) và Pre-training là gì?",
+        "sample_id": "eval_fin_03",
+        "question": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
         "scores": {
-          "context_precision": 0.3333,
-          "context_recall": 0.5,
+          "context_precision": 0.8667,
+          "context_recall": 1.0,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.7668
-        }
-      },
-      {
-        "sample_id": "eval_03",
-        "question": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
-        "scores": {
-          "context_precision": 0.0,
-          "context_recall": 0.0,
-          "faithfulness": 1.0,
-          "answer_relevancy": 0.7639
+          "answer_relevancy": 0.9144
         }
       }
     ]
@@ -217,42 +217,42 @@
   {
     "config_name": "Semantic (Std_dev)",
     "method": "semantic",
-    "total_chunks": 137,
+    "total_chunks": 693,
     "scores": {
-      "context_precision": 0.2333,
-      "context_recall": 0.3889,
+      "context_precision": 0.9722,
+      "context_recall": 0.8611,
       "faithfulness": 1.0,
-      "answer_relevancy": 0.856
+      "answer_relevancy": 0.9147
     },
     "items": [
       {
-        "sample_id": "eval_01",
-        "question": "LoRA (Low-Rank Adaptation) hoạt động như thế nào trong quá trình Fine-tuning mô hình ngôn ngữ lớn?",
+        "sample_id": "eval_fin_01",
+        "question": "Mục tiêu tổng quát của dự án phân tích tiền gửi tại AIV Bank là gì và được tổ chức theo bốn nhóm mục tiêu nào?",
         "scores": {
-          "context_precision": 0.7,
-          "context_recall": 0.5,
+          "context_precision": 1.0,
+          "context_recall": 0.8333,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.9062
+          "answer_relevancy": 0.8914
         }
       },
       {
-        "sample_id": "eval_02",
-        "question": "Sự khác biệt chính giữa SFT (Supervised Fine-Tuning) và Pre-training là gì?",
+        "sample_id": "eval_fin_02",
+        "question": "Sự khác biệt trong cách ghi nhận tiền gửi và khoản cho vay giữa khách hàng và ngân hàng thương mại là gì?",
         "scores": {
-          "context_precision": 0.0,
-          "context_recall": 0.6667,
+          "context_precision": 1.0,
+          "context_recall": 0.75,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.9012
+          "answer_relevancy": 0.9331
         }
       },
       {
-        "sample_id": "eval_03",
-        "question": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
+        "sample_id": "eval_fin_03",
+        "question": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
         "scores": {
-          "context_precision": 0.0,
-          "context_recall": 0.0,
+          "context_precision": 0.9167,
+          "context_recall": 1.0,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.7605
+          "answer_relevancy": 0.9195
         }
       }
     ]
@@ -260,42 +260,42 @@
   {
     "config_name": "Semantic (Percentile)",
     "method": "semantic",
-    "total_chunks": 120,
+    "total_chunks": 600,
     "scores": {
-      "context_precision": 0.3792,
-      "context_recall": 0.3889,
+      "context_precision": 0.9556,
+      "context_recall": 1.0,
       "faithfulness": 1.0,
-      "answer_relevancy": 0.8153
+      "answer_relevancy": 0.9365
     },
     "items": [
       {
-        "sample_id": "eval_01",
-        "question": "LoRA (Low-Rank Adaptation) hoạt động như thế nào trong quá trình Fine-tuning mô hình ngôn ngữ lớn?",
+        "sample_id": "eval_fin_01",
+        "question": "Mục tiêu tổng quát của dự án phân tích tiền gửi tại AIV Bank là gì và được tổ chức theo bốn nhóm mục tiêu nào?",
         "scores": {
-          "context_precision": 0.8042,
-          "context_recall": 0.5,
+          "context_precision": 0.8667,
+          "context_recall": 1.0,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.9315
+          "answer_relevancy": 0.9451
         }
       },
       {
-        "sample_id": "eval_02",
-        "question": "Sự khác biệt chính giữa SFT (Supervised Fine-Tuning) và Pre-training là gì?",
+        "sample_id": "eval_fin_02",
+        "question": "Sự khác biệt trong cách ghi nhận tiền gửi và khoản cho vay giữa khách hàng và ngân hàng thương mại là gì?",
         "scores": {
-          "context_precision": 0.3333,
-          "context_recall": 0.6667,
+          "context_precision": 1.0,
+          "context_recall": 1.0,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.7538
+          "answer_relevancy": 0.9389
         }
       },
       {
-        "sample_id": "eval_03",
-        "question": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
+        "sample_id": "eval_fin_03",
+        "question": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
         "scores": {
-          "context_precision": 0.0,
-          "context_recall": 0.0,
+          "context_precision": 1.0,
+          "context_recall": 1.0,
           "faithfulness": 1.0,
-          "answer_relevancy": 0.7605
+          "answer_relevancy": 0.9256
         }
       }
     ]

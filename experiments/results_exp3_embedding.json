@@ -4,34 +4,34 @@
       "model_name": "Multilingual-E5-Large (Baseline)",
       "model_id": "intfloat/multilingual-e5-large",
       "collection": "documents",
-      "total_chunks": 60,
-      "avg_latency_ms": 47.94,
+      "total_chunks": 387,
+      "avg_latency_ms": 120.95,
       "scores": {
-        "context_precision": 0.5181,
-        "context_recall": 0.3556,
-        "faithfulness": 0.6667,
-        "answer_relevancy": 0.8201
+        "context_precision": 0.6667,
+        "context_recall": 0.9167,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9277
       }
     },
     {
       "model_name": "BAAI/BGE-M3 (SOTA Candidate)",
       "model_id": "BAAI/bge-m3",
       "collection": "documents_bge_m3",
-      "total_chunks": 60,
-      "avg_latency_ms": 29.83,
+      "total_chunks": 387,
+      "avg_latency_ms": 69.23,
       "scores": {
-        "context_precision": 0.3333,
-        "context_recall": 0.3889,
-        "faithfulness": 0.6667,
-        "answer_relevancy": 0.8036
+        "context_precision": 0.7333,
+        "context_recall": 0.8611,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.906
       }
     }
   ],
   "delta_bge_vs_e5": {
     "delta_faithfulness": 0.0,
-    "delta_answer_relevancy": -0.0165,
-    "delta_context_precision": -0.1848,
-    "delta_context_recall": 0.0333,
-    "delta_latency_ms": -18.11
+    "delta_answer_relevancy": -0.0217,
+    "delta_context_precision": 0.0666,
+    "delta_context_recall": -0.0556,
+    "delta_latency_ms": -51.72
   }
 }

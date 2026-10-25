@@ -4,48 +4,48 @@
       "strategy": "1. Baseline: Recursive (1000/150)",
       "id": "baseline_rec",
       "scores": {
-        "context_precision": 0.3352,
-        "context_recall": 0.4389,
+        "context_precision": 0.6667,
+        "context_recall": 0.5833,
         "faithfulness": 1.0,
-        "answer_relevancy": 0.9164
+        "answer_relevancy": 0.8691
       }
     },
     {
       "strategy": "2. Recursive + Reranker (Thực nghiệm 2)",
       "id": "rec_reranker",
       "scores": {
-        "context_precision": 0.6667,
-        "context_recall": 0.5833,
-        "faithfulness": 0.6667,
-        "answer_relevancy": 0.8667
+        "context_precision": 0.9556,
+        "context_recall": 0.9167,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9085
       }
     },
     {
       "strategy": "3. Semantic (Interquartile) (Thực nghiệm 1)",
       "id": "semantic_only",
       "scores": {
-        "context_precision": 0.5,
-        "context_recall": 0.5,
+        "context_precision": 0.7889,
+        "context_recall": 1.0,
         "faithfulness": 1.0,
-        "answer_relevancy": 0.9044
+        "answer_relevancy": 0.9100
       }
     },
     {
       "strategy": "4. Semantic + Reranker (Golden Fusion - Đề xuất Mới)",
       "id": "golden_fusion",
       "scores": {
-        "context_precision": 0.7611,
-        "context_recall": 0.6222,
+        "context_precision": 0.9722,
+        "context_recall": 1.0,
         "faithfulness": 1.0,
-        "answer_relevancy": 0.9133
+        "answer_relevancy": 0.9350
       }
     }
   ],
   "hybrid_query3_validation": {
-    "query": "Thuật toán DPO (Direct Preference Optimization) cải tiến so với RLHF truyền thống ở điểm nào?",
-    "document": "[Reading]-LLM-Alignment.pdf",
-    "dense_found_dpo": true,
-    "sparse_found_dpo": true,
-    "hybrid_found_dpo": true
+    "query": "Thu nhập lãi thuần của ngân hàng được xác định như thế nào và tại sao tiền gửi không kỳ hạn giúp duy trì nguồn vốn chi phí thấp?",
+    "document": "[Project]-Finance-Analytics-eDA.pdf",
+    "dense_found_target": true,
+    "sparse_found_target": true,
+    "hybrid_found_target": true
   }
 }

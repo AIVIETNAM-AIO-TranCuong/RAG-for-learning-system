@@ -50,47 +50,29 @@ def run_experiment_golden_fusion(
     output_dir.mkdir(parents=True, exist_ok=True)
     testset = load_testset(testset_path)[:max_samples]
 
-    pdf_finetuning = REPO_ROOT / "data" / "pdfs" / "[Description]-LLMs-Fine-tuning.pdf"
-    pdf_alignment = REPO_ROOT / "data" / "pdfs" / "[Reading]-LLM-Alignment.pdf"
+    pdf_target = REPO_ROOT / "data" / "pdfs" / "[Project]-Finance-Analytics-eDA.pdf"
 
     print(f"\n{'='*75}", flush=True)
     print("BẮT ĐẦU THỰC NGHIỆM 3: SO SÁNH 4 CHIẾN LƯỢC CỐT LÕI (GOLDEN FUSION)", flush=True)
+    print(f"Tài liệu đánh giá: {pdf_target.name} (140 trang)", flush=True)
     print(f"Số lượng mẫu đánh giá: {len(testset)} câu hỏi", flush=True)
     print(f"{'='*75}\n", flush=True)
 
     evaluator = RagasEvaluator()
     store = get_store()
 
-    # 1. Indexing tài liệu Fine-tuning (cho Query 1, 2)
-    print("-> 1. Indexing tài liệu Fine-tuning (Recursive & Semantic)...", flush=True)
-    doc_ft_rec = index_document(
-        pdf_finetuning,
+    # Indexing tài liệu (Recursive & Semantic)
+    print("-> Indexing tài liệu Finance (Recursive 1000/150 & Semantic Interquartile)...", flush=True)
+    doc_target_rec = index_document(
+        pdf_target,
         force_reindex=False,
         chunking_method="recursive",
         chunk_size=1000,
         chunk_overlap=150,
         store=store
     )
-    doc_ft_sem = index_document(
-        pdf_finetuning,
-        force_reindex=False,
-        chunking_method="semantic",
-        semantic_threshold_type="interquartile",
-        store=store
-    )
-
-    # 2. Indexing tài liệu Alignment (cho Query 3: DPO vs RLHF)
-    print("-> 2. Indexing tài liệu Alignment (Recursive & Semantic)...", flush=True)
-    doc_align_rec = index_document(
-        pdf_alignment,
-        force_reindex=False,
-        chunking_method="recursive",
-        chunk_size=1000,
-        chunk_overlap=150,
-        store=store
-    )
-    doc_align_sem = index_document(
-        pdf_alignment,
+    doc_target_sem = index_document(
+        pdf_target,
         force_reindex=False,
         chunking_method="semantic",
         semantic_threshold_type="interquartile",
@@ -98,8 +80,9 @@ def run_experiment_golden_fusion(
     )
 
     doc_map = {
-        "[Description]-LLMs-Fine-tuning.pdf": {"rec": doc_ft_rec, "sem": doc_ft_sem},
-        "[Reading]-LLM-Alignment.pdf": {"rec": doc_align_rec, "sem": doc_align_sem},
+        "[Project]-Finance-Analytics-eDA.pdf": {"rec": doc_target_rec, "sem": doc_target_sem},
+        "[Description]-LLMs-Fine-tuning.pdf": {"rec": doc_target_rec, "sem": doc_target_sem},
+        "[Reading]-LLM-Alignment.pdf": {"rec": doc_target_rec, "sem": doc_target_sem},
     }
 
     strategies = [
@@ -195,38 +178,38 @@ def run_experiment_golden_fusion(
     print("BƯỚC 2: KIỂM CHỨNG TÁC ĐỘNG CỦA HYBRID SEARCH TRÊN QUERY 3 (DPO vs RLHF)", flush=True)
     print(f"{'='*75}\n", flush=True)
 
-    q3_sample = testset[2]  # Query 3: DPO vs RLHF
-    doc_align_id = doc_align_rec
+    q3_sample = testset[2]  # Query 3: Thu nhập lãi thuần & CASA
+    doc_target_id = doc_target_rec
 
     print(f"Câu hỏi kiểm định: '{q3_sample.question}'", flush=True)
-    print(f"Tài liệu đối chiếu: [Reading]-LLM-Alignment.pdf (ID: {doc_align_id})", flush=True)
+    print(f"Tài liệu đối chiếu: {pdf_target.name} (ID: {doc_target_id})", flush=True)
 
     # 1. Dense Only
-    dense_chunks = retrieve(q3_sample.question, top_k=5, document_id=doc_align_id, store=store, use_hybrid=False)
+    dense_chunks = retrieve(q3_sample.question, top_k=5, document_id=doc_target_id, store=store, use_hybrid=False)
     # 2. BM25 Sparse Only
-    bm25_retriever = get_bm25_retriever_for_document(doc_align_id, store=store)
+    bm25_retriever = get_bm25_retriever_for_document(doc_target_id, store=store)
     sparse_chunks = bm25_retriever.search(q3_sample.question, top_k=5)
     # 3. Hybrid Search (RRF)
     hybrid_chunks = reciprocal_rank_fusion(dense_chunks, sparse_chunks, k=60, top_k=5)
 
-    def check_contains_dpo(chunks):
-        return any("dpo" in c.content.lower() or "direct preference" in c.content.lower() for c in chunks)
+    def check_contains_finance_term(chunks):
+        return any("thu nhập lãi" in c.content.lower() or "chi phí lãi" in c.content.lower() or "tiền gửi không kỳ hạn" in c.content.lower() for c in chunks)
 
-    dense_has_dpo = check_contains_dpo(dense_chunks)
-    sparse_has_dpo = check_contains_dpo(sparse_chunks)
-    hybrid_has_dpo = check_contains_dpo(hybrid_chunks)
+    dense_has_term = check_contains_finance_term(dense_chunks)
+    sparse_has_term = check_contains_finance_term(sparse_chunks)
+    hybrid_has_term = check_contains_finance_term(hybrid_chunks)
 
-    print(f"\n-> Kết quả nhận diện thuật ngữ DPO/RLHF trong Top-5 Chunks:", flush=True)
-    print(f"   - Dense-Only:   {'[V] TÌM THẤY DPO' if dense_has_dpo else '[X] KHÔNG TÌM THẤY (Bị mất dấu từ vựng)'}", flush=True)
-    print(f"   - BM25-Only:    {'[V] TÌM THẤY DPO' if sparse_has_dpo else '[X] KHÔNG TÌM THẤY'}", flush=True)
-    print(f"   - Hybrid (RRF): {'[V] TÌM THẤY DPO' if hybrid_has_dpo else '[X] KHÔNG TÌM THẤY'}", flush=True)
+    print(f"\n-> Kết quả nhận diện thuật ngữ tài chính trong Top-5 Chunks:", flush=True)
+    print(f"   - Dense-Only:   {'[V] TÌM THẤY' if dense_has_term else '[X] KHÔNG TÌM THẤY'}", flush=True)
+    print(f"   - BM25-Only:    {'[V] TÌM THẤY' if sparse_has_term else '[X] KHÔNG TÌM THẤY'}", flush=True)
+    print(f"   - Hybrid (RRF): {'[V] TÌM THẤY' if hybrid_has_term else '[X] KHÔNG TÌM THẤY'}", flush=True)
 
     hybrid_validation = {
         "query": q3_sample.question,
-        "document": "[Reading]-LLM-Alignment.pdf",
-        "dense_found_dpo": dense_has_dpo,
-        "sparse_found_dpo": sparse_has_dpo,
-        "hybrid_found_dpo": hybrid_has_dpo
+        "document": pdf_target.name,
+        "dense_found_target": dense_has_term,
+        "sparse_found_target": sparse_has_term,
+        "hybrid_found_target": hybrid_has_term
     }
 
     out_payload = {

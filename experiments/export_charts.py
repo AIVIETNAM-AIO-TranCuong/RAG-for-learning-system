@@ -88,9 +88,9 @@ def plot_exp1_chunking(results_file: Path = REPO_ROOT / "experiments" / "results
     ax.set_title('So sánh các chỉ số RAG theo cấu hình Chunk Size và Overlap', pad=12, fontweight='bold', color=AIVN_GREEN)
     ax.set_xticks(x)
     ax.set_xticklabels(configs)
-    ax.set_ylim(0.0, 1.10)
+    ax.set_ylim(0.0, 1.12)
     ax.grid(axis='y', linestyle='--', alpha=0.5)
-    ax.legend(loc='upper right')
+    ax.legend(loc='lower left', framealpha=0.92, facecolor='white', edgecolor='#cccccc', fontsize=9)
 
     for rects in [rects1, rects2, rects3, rects4]:
         for rect in rects:
@@ -115,23 +115,42 @@ def plot_exp1_chunking(results_file: Path = REPO_ROOT / "experiments" / "results
         r_vals = [d["scores"]["context_recall"] for d in rec_asc]
     else:
         chunk_sizes = [500, 800, 1000, 1500]
-        f_vals = [0.7867, 0.8112, 0.8632, 0.8811]
-        a_vals = [0.7509, 0.7526, 0.7292, 0.7590]
-        p_vals = [0.8151, 0.8572, 0.8618, 0.8149]
-        r_vals = [0.9200, 0.9200, 0.9200, 0.9200]
+        f_vals = [1.0000, 1.0000, 1.0000, 1.0000]
+        a_vals = [0.7966, 0.8314, 0.8691, 0.8150]
+        p_vals = [0.5500, 0.6667, 0.6667, 0.6111]
+        r_vals = [0.5833, 0.5833, 0.5833, 0.5833]
 
-    fig, ax = plt.subplots(figsize=(9, 5))
-    ax.plot(chunk_sizes, f_vals, 'o-', label='Faithfulness', color=STEEL_BLUE, lw=2)
-    ax.plot(chunk_sizes, a_vals, 's-', label='Answer Relevance', color=AMBER, lw=2)
-    ax.plot(chunk_sizes, p_vals, '^-', label='Context Precision', color=AIVN_GREEN, lw=2)
-    ax.plot(chunk_sizes, r_vals, 'D-', label='Context Recall', color=DARK_RED, lw=2)
+    fig, ax = plt.subplots(figsize=(9, 5.2))
+    ax.plot(chunk_sizes, f_vals, 'o-', label='Faithfulness', color=STEEL_BLUE, lw=2.5, markersize=7)
+    ax.plot(chunk_sizes, a_vals, 's-', label='Answer Relevance', color=AMBER, lw=2.5, markersize=7)
+    ax.plot(chunk_sizes, p_vals, '^-', label='Context Precision', color=AIVN_GREEN, lw=2.5, markersize=7)
+    ax.plot(chunk_sizes, r_vals, 'D-', label='Context Recall', color=DARK_RED, lw=2.5, markersize=7)
 
-    ax.set_xlabel('Kích thước Chunk (Chunk Size)')
-    ax.set_ylabel('Điểm số (Scores)')
-    ax.set_title('Xu hướng các chỉ số khi thay đổi Chunk Size', pad=12, fontweight='bold', color=AIVN_GREEN)
-    ax.set_ylim(0.0, 1.10)
+    # Thêm giá trị cụ thể tại từng điểm để biểu đồ trực quan, dễ đọc
+    for i, size in enumerate(chunk_sizes):
+        ax.annotate(f'{f_vals[i]:.2f}', xy=(size, f_vals[i]), xytext=(0, 6), textcoords="offset points",
+                    ha='center', va='bottom', fontsize=8, color=STEEL_BLUE, fontweight='bold')
+        ax.annotate(f'{a_vals[i]:.2f}', xy=(size, a_vals[i]), xytext=(0, 6), textcoords="offset points",
+                    ha='center', va='bottom', fontsize=8, color='#b86f00', fontweight='bold')
+        # Precision & Recall: offset tránh đè nhau
+        p_offset = 6 if p_vals[i] >= r_vals[i] else -13
+        r_offset = -13 if p_vals[i] >= r_vals[i] else 6
+        ax.annotate(f'{p_vals[i]:.2f}', xy=(size, p_vals[i]), xytext=(0, p_offset), textcoords="offset points",
+                    ha='center', va='bottom', fontsize=8, color=AIVN_GREEN, fontweight='bold')
+        ax.annotate(f'{r_vals[i]:.2f}', xy=(size, r_vals[i]), xytext=(0, r_offset), textcoords="offset points",
+                    ha='center', va='bottom', fontsize=8, color=DARK_RED, fontweight='bold')
+
+    ax.set_xlabel('Kích thước Chunk (Tokens)', fontweight='medium')
+    ax.set_ylabel('Điểm số Ragas (Scores)', fontweight='medium')
+    ax.set_title('Xu hướng biến thiên các chỉ số theo Chunk Size (Recursive Chunking)', pad=12, fontweight='bold', color=AIVN_GREEN)
+    ax.set_xticks(chunk_sizes)
+    ax.set_xticklabels([f"S:{s}" for s in chunk_sizes], fontweight='medium')
+    ax.set_xlim(420, 1580)
+    ax.set_ylim(0.0, 1.12)
     ax.grid(True, linestyle='--', alpha=0.5)
-    ax.legend(loc='center right')
+
+    # Đặt Legend ở góc trái dưới - khu vực trống hoàn toàn, không đè lên bất kỳ đường đồ thị nào
+    ax.legend(loc='lower left', framealpha=0.92, facecolor='white', edgecolor='#cccccc', fontsize=9.5)
 
     for out_dir in [OUTPUT_DIR_EXP, OUTPUT_DIR_LATEX]:
         fig.savefig(out_dir / "chunking_linetrend.png", dpi=200, bbox_inches='tight', facecolor=WHITE)
@@ -224,9 +243,9 @@ def plot_exp3_embedding(results_file: Path = REPO_ROOT / "experiments" / "result
     ax.set_title('So sánh Mô hình Embedding: Multilingual-E5-Large vs BAAI/BGE-M3', pad=12, fontweight='bold', color=AIVN_GREEN)
     ax.set_xticks(x)
     ax.set_xticklabels(metrics)
-    ax.set_ylim(0.0, 1.05)
+    ax.set_ylim(0.0, 1.12)
     ax.grid(axis='y', linestyle='--', alpha=0.5)
-    ax.legend(loc='upper right')
+    ax.legend(loc='lower left', framealpha=0.92, facecolor='white', edgecolor='#cccccc', fontsize=9)
 
     for rects in [rects1, rects2]:
         for rect in rects:

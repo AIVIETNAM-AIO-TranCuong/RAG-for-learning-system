@@ -35,15 +35,18 @@ class GeminiBackend(LLMBackend):
         import re
         import google.generativeai as genai
         max_retries = 6
-        fallback_models = ["gemini-2.5-flash-lite", "gemini-flash-latest", "gemini-3.5-flash-lite"]
+        fallback_models = ["gemini-2.5-flash", "gemini-3.5-flash", "gemini-3.1-flash-lite"]
         for attempt in range(max_retries):
             try:
                 response = self.model.generate_content(prompt)
                 return response.text
             except Exception as e:
                 err_str = str(e)
-                if "429" in err_str or "RESOURCE_EXHAUSTED" in err_str:
-                    if "per_day" in err_str.lower() or "free_tier_requests" in err_str or "daily" in err_str.lower():
+                is_quota = "429" in err_str or "RESOURCE_EXHAUSTED" in err_str
+                is_timeout = "504" in err_str or "DEADLINE_EXCEEDED" in err_str or "timeout" in err_str.lower()
+                
+                if (is_quota or is_timeout) and attempt < max_retries - 1:
+                    if is_quota and ("per_day" in err_str.lower() or "free_tier_requests" in err_str or "daily" in err_str.lower()):
                         for fb in fallback_models:
                             if fb != self.model_name:
                                 print(f"  [Gemini Quota Exceeded] Chuyển sang model dự phòng: {fb}...")
@@ -55,16 +58,15 @@ class GeminiBackend(LLMBackend):
                                 except Exception:
                                     continue
                     
-                    # Xác định thời gian đợi RPM (mặc định đợi 15s - 35s)
-                    sleep_s = 15.0 * (attempt + 1)
+                    sleep_s = 10.0 * (attempt + 1)
                     match = re.search(r'retry in (\d+(?:\.\d+)?)s', err_str)
                     if match:
                         sleep_s = max(sleep_s, float(match.group(1)) + 2.0)
                     
-                    if attempt < max_retries - 1:
-                        print(f"  [Gemini Rate Limit] Đợi {sleep_s:.1f}s để qua ngưỡng giới hạn RPM (Lần thử {attempt + 1}/{max_retries})...")
-                        time.sleep(sleep_s)
-                        continue
+                    reason = "Timeout/504" if is_timeout else "Rate Limit"
+                    print(f"  [Gemini {reason}] Đợi {sleep_s:.1f}s trước khi thử lại (Lần thử {attempt + 1}/{max_retries})...")
+                    time.sleep(sleep_s)
+                    continue
                 raise
 
 

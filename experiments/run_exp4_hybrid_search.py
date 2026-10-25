@@ -216,7 +216,7 @@ def run_experiment_4(
 
 
 if __name__ == "__main__":
-    test_pdf = REPO_ROOT / "data" / "pdfs" / "[Description]-LLMs-Fine-tuning.pdf"
+    test_pdf = REPO_ROOT / "data" / "pdfs" / "[Project]-Finance-Analytics-eDA.pdf"
     if not test_pdf.exists():
         pdfs = list((REPO_ROOT / "data" / "pdfs").glob("*.pdf"))
         if pdfs:

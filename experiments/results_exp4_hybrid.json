@@ -4,75 +4,75 @@
       "strategy": "1. Dense-Only (Multilingual-E5)",
       "mode": "dense",
       "scores": {
-        "context_precision": 0.5204,
-        "context_recall": 0.3889,
-        "faithfulness": 0.3333,
-        "answer_relevancy": 0.8123
+        "context_precision": 1.0,
+        "context_recall": 1.0,
+        "faithfulness": 0.8333,
+        "answer_relevancy": 0.9414
       },
       "query_3_scores": {
-        "context_precision": 0.0,
-        "context_recall": 0.0,
-        "faithfulness": 0.0,
-        "answer_relevancy": 0.7685
+        "context_precision": 1.0,
+        "context_recall": 1.0,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9199
       }
     },
     {
       "strategy": "2. Sparse-Only (BM25 Okapi)",
       "mode": "sparse",
       "scores": {
-        "context_precision": 0.2889,
-        "context_recall": 0.2778,
+        "context_precision": 0.8333,
+        "context_recall": 0.9583,
         "faithfulness": 1.0,
-        "answer_relevancy": 0.8785
+        "answer_relevancy": 0.9243
       },
       "query_3_scores": {
-        "context_precision": 0.0,
-        "context_recall": 0.0,
+        "context_precision": 1.0,
+        "context_recall": 1.0,
         "faithfulness": 1.0,
-        "answer_relevancy": 0.7643
+        "answer_relevancy": 0.9113
       }
     },
     {
       "strategy": "3. Hybrid Search (Dense + BM25 RRF)",
       "mode": "hybrid",
       "scores": {
-        "context_precision": 0.3167,
-        "context_recall": 0.3889,
-        "faithfulness": 0.3333,
-        "answer_relevancy": 0.8088
+        "context_precision": 0.7333,
+        "context_recall": 0.963,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9025
       },
       "query_3_scores": {
-        "context_precision": 0.0,
-        "context_recall": 0.0,
-        "faithfulness": 0.0,
-        "answer_relevancy": 0.7707
+        "context_precision": 1.0,
+        "context_recall": 1.0,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.9052
       }
     },
     {
       "strategy": "4. Hybrid + Cross-Encoder Reranker (Ours SOTA)",
       "mode": "hybrid_rerank",
       "scores": {
-        "context_precision": 0.3333,
-        "context_recall": 0.4889,
-        "faithfulness": 0.3333,
-        "answer_relevancy": 0.8115
+        "context_precision": 0.9722,
+        "context_recall": 1.0,
+        "faithfulness": 0.9444,
+        "answer_relevancy": 0.8959
       },
       "query_3_scores": {
-        "context_precision": 0.0,
-        "context_recall": 0.0,
-        "faithfulness": 0.0,
-        "answer_relevancy": 0.7698
+        "context_precision": 0.9167,
+        "context_recall": 1.0,
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.8999
       }
     }
   ],
   "delta_hybrid_vs_dense": {
-    "delta_faithfulness": 0.0,
-    "delta_context_precision": -0.2037,
-    "delta_context_recall": 0.0
+    "delta_faithfulness": 0.1667,
+    "delta_context_precision": -0.2667,
+    "delta_context_recall": -0.037
   },
   "delta_sota_vs_dense": {
-    "delta_faithfulness": 0.0,
-    "delta_context_precision": -0.1871,
-    "delta_context_recall": 0.1
+    "delta_faithfulness": 0.1111,
+    "delta_context_precision": -0.0278,
+    "delta_context_recall": 0.0
   }
 }
